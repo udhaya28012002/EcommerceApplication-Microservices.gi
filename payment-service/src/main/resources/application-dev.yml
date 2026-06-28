@@ -1,0 +1,30 @@
+server:
+  port: 9095
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/payment_service
+    #username: ${DB_USERNAME}
+    username: root
+    #password: ${DB_PASSWORD}
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+jwt:
+  secret: ${JWT_SECRET}
+
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  webhook-secret-key : ${WEBHOOK_SECRET_KEY}
+
+logging:
+  level:
+    org.springframework.security: DEBUG

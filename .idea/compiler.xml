@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="cart-service" />
+        <module name="products-service" />
+        <module name="payment-service" />
+        <module name="inventory-service" />
+        <module name="users-service" />
+        <module name="discount-service" />
+        <module name="api-gateway" />
+        <module name="order-service" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="category-service" target="17" />
+      <module name="ecommerceapp" target="1.5" />
+      <module name="user-service" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
+      <module name="cart-service" options="-parameters" />
+      <module name="category-service" options="-parameters" />
+      <module name="discount-service" options="-parameters" />
+      <module name="ecommerceapp" options="" />
+      <module name="inventory-service" options="-parameters" />
+      <module name="order-service" options="-parameters" />
+      <module name="payment-service" options="-parameters" />
+      <module name="products-service" options="-parameters" />
+      <module name="user-service" options="-parameters" />
+      <module name="users-service" options="-parameters" />
+    </option>
+  </component>
+</project>

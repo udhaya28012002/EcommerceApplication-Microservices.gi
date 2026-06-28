@@ -1,0 +1,656 @@
+{
+  "info": {
+    "name": "discount-service - Test Data",
+    "description": "Comprehensive API test collection for discount-service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "base_url",
+      "value": "http://localhost:9092",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Coupon Endpoints",
+      "item": [
+        {
+          "name": "1. Add Coupons To Eligible Users - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    var responseBody = pm.response.text();",
+                  "    pm.expect(responseBody).to.include('assigned');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": \"SUMMER2024\",\n  \"description\": \"50% discount on summer collection\",\n  \"discountType\": \"PERCENTAGE\",\n  \"discountValue\": 50,\n  \"minAmtOrder\": 1000,\n  \"maxDiscountAmount\": 500,\n  \"validityInMonths\": 3,\n  \"usageLimit\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/addCoupons/5000",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "addCoupons",
+                "5000"
+              ]
+            }
+          }
+        },
+        {
+          "name": "2. Add Coupons To Eligible Users - Negative Case (Missing Field)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": \"INVALID2024\",\n  \"description\": \"Invalid coupon\",\n  \"discountType\": \"PERCENTAGE\",\n  \"discountValue\": 50,\n  \"minAmtOrder\": 1000,\n  \"maxDiscountAmount\": 500,\n  \"validityInMonths\": 0,\n  \"usageLimit\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/addCoupons/5000",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "addCoupons",
+                "5000"
+              ]
+            }
+          }
+        },
+        {
+          "name": "3. Assign Welcome Coupon - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    var responseBody = pm.response.text();",
+                  "    pm.expect(responseBody).to.include('assigned');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/assignWelcomeCoupon?registrationTime=2024-06-06T10:30:00",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "assignWelcomeCoupon"
+              ],
+              "query": [
+                {
+                  "key": "registrationTime",
+                  "value": "2024-06-06T10:30:00"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Assign Welcome Coupon - Negative Case (Invalid DateTime)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/assignWelcomeCoupon?registrationTime=invalid-date",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "assignWelcomeCoupon"
+              ],
+              "query": [
+                {
+                  "key": "registrationTime",
+                  "value": "invalid-date"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "5. Add Coupons To All Users - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    var responseBody = pm.response.text();",
+                  "    pm.expect(responseBody).to.include('assigned');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": \"NEWUSER100\",\n  \"description\": \"Flat 100 rupees discount for all users\",\n  \"discountType\": \"FLAT\",\n  \"discountValue\": 100,\n  \"minAmtOrder\": 500,\n  \"maxDiscountAmount\": 100,\n  \"validityInMonths\": 1,\n  \"usageLimit\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/addCouponsToAllUsers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "addCouponsToAllUsers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "6. Add Coupons To All Users - Negative Case (Invalid DiscountValue)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"couponCode\": \"INVALID200\",\n  \"description\": \"Invalid coupon with negative values\",\n  \"discountType\": \"FLAT\",\n  \"discountValue\": -50,\n  \"minAmtOrder\": 500,\n  \"maxDiscountAmount\": 100,\n  \"validityInMonths\": 1,\n  \"usageLimit\": 1000\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/coupon/addCouponsToAllUsers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "addCouponsToAllUsers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "7. Display Customer Coupons - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains available coupons\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/displayCoupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "displayCoupons"
+              ]
+            }
+          }
+        },
+        {
+          "name": "8. Display Customer Coupons - Negative Case (Missing Auth)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 401 or 403\", function () {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/displayCoupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "displayCoupons"
+              ]
+            }
+          }
+        },
+        {
+          "name": "9. Display All Coupons - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains all coupons\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.exist;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/displayAllCoupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "displayAllCoupons"
+              ]
+            }
+          }
+        },
+        {
+          "name": "10. Display All Coupons - Negative Case (Invalid Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 401 or 403\", function () {",
+                  "    pm.expect([401, 403]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid_token_xyz"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/displayAllCoupons",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "displayAllCoupons"
+              ]
+            }
+          }
+        },
+        {
+          "name": "11. Check And Redeem Coupon - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 202\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has coupon details\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('couponName');",
+                  "    pm.expect(jsonData).to.have.property('finalPrice');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/checkCouponsAndRedeem?couponCode=SUMMER2024&totalPricePerOrder=5000",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "checkCouponsAndRedeem"
+              ],
+              "query": [
+                {
+                  "key": "couponCode",
+                  "value": "SUMMER2024"
+                },
+                {
+                  "key": "totalPricePerOrder",
+                  "value": "5000"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "12. Check And Redeem Coupon - Negative Case (Invalid Coupon)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 202 or 400\", function () {",
+                  "    pm.expect([202, 400]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/checkCouponsAndRedeem?couponCode=INVALIDCODE&totalPricePerOrder=100",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "checkCouponsAndRedeem"
+              ],
+              "query": [
+                {
+                  "key": "couponCode",
+                  "value": "INVALIDCODE"
+                },
+                {
+                  "key": "totalPricePerOrder",
+                  "value": "100"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "13. Revert Coupon - Happy Path",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 202\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    var responseBody = pm.response.text();",
+                  "    pm.expect(responseBody).to.include('Reverted');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/revertCoupons/SUMMER2024",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "revertCoupons",
+                "SUMMER2024"
+              ]
+            }
+          }
+        },
+        {
+          "name": "14. Revert Coupon - Negative Case (Invalid Coupon)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 406 or 404\", function () {",
+                  "    pm.expect([404, 406]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/coupon/revertCoupons/NONEXISTENTCOUPON",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "coupon",
+                "revertCoupons",
+                "NONEXISTENTCOUPON"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

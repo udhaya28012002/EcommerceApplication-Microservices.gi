@@ -1,0 +1,7 @@
+package org.webapp.ecommerce.exception;
+
+public class DuplicateDiscountException extends RuntimeException{
+    public DuplicateDiscountException(String message) {
+        super(message);
+    }
+}

@@ -1,0 +1,54 @@
+server:
+  port: 9097
+
+spring:
+
+  application:
+    name: users-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/users_service
+    #username: ${DB_USERNAME}
+    username: root
+    #password: ${DB_PASSWORD}
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+jwt:
+  access-token-expiration: 900000
+  refresh-token-expiration: 10
+  #secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET}
+
+service-urls:
+  discount-service-url: http://localhost:9092/api/coupon
+  cart-service-url: http://localhost:9090/api/cart
+
+logging:
+  level:
+    root: INFO
+
+    org.springframework.security: TRACE
+    org.springframework.security.web.FilterChainProxy: TRACE
+    org.springframework.security.authorization: TRACE
+    org.springframework.security.web.access: TRACE
+    org.springframework.security.web.authentication: TRACE
+
+    org.springframework.web.filter: TRACE
+
+    org.webapp.ecommerce: TRACE
+
+    org.springframework.security.authorization.method: TRACE
+
+known-services:
+  allowed-services:
+    - cart-service
+    - discount-service
