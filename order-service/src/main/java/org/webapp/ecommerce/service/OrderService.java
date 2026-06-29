@@ -367,7 +367,9 @@ public class OrderService {
 
         //Revert the Coupons if any used:
 
-        orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
+        String message = orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
+
+        log.info("{} for cancelled order: {}", message, orderNumber);
 
         log.info("Inventory reverted successfully for cancelled order: {}", orderNumber);
 
@@ -397,9 +399,9 @@ public class OrderService {
         for (OrderItems orderItems : orderItemsList) {
             long productId = orderItems.getProductId();
 
-            if (productId > 0) {
+            if (productId <= 0) {
 
-                log.warn("Product not found while reverting inventory");
+                log.warn("Product: {} not found while reverting inventory", productId);
 
                 throw new IllegalArgumentException("No Product Found");
             }

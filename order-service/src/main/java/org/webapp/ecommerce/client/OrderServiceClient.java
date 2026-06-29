@@ -38,6 +38,9 @@ public class OrderServiceClient {
     @Value("${service-urls.products-service-url}")
     private String productServiceUrl;
 
+    @Value("${service-urls.payment-service-url}")
+    private String paymentServiceUrl;
+
     public OrderServiceClient(RestTemplate restTemplate, OrderServiceTokenProvider tokenProvider) {
         this.restTemplate = restTemplate;
         this.tokenProvider = tokenProvider;
@@ -117,7 +120,7 @@ public class OrderServiceClient {
     }
 
 
-    public void revertCoupon(String username, String couponCode, String role) {
+    public String revertCoupon(String username, String couponCode, String role) {
 
         logger.debug("Calling Discount Service for user: {}", username);
 
@@ -131,12 +134,14 @@ public class OrderServiceClient {
 
         try {
 
-            ResponseEntity<ApplyCouponResponse> response = restTemplate.exchange(
+            ResponseEntity<String> response = restTemplate.exchange(
                     url,
-                    HttpMethod.POST,
+                    HttpMethod.PATCH,
                     entity,
-                    ApplyCouponResponse.class
+                    String.class
             );
+
+            return response.getBody();
 
         } catch (Exception e) {
             logger.error("Failed to fetch Discount Service for username: {}. Error: ", username, e);
@@ -150,7 +155,7 @@ public class OrderServiceClient {
         logger.debug("Calling Inventory Service for user: {}", username);
 
         String url = UriComponentsBuilder
-                .fromUriString(discountServiceUrl + "/internal/revertInventory")
+                .fromUriString(inventoryServiceUrl + "/internal/revertInventory")
                 .queryParam("productId", productId)
                 .queryParam("quantityToBeReverted", quantityToBeReverted)
                 .build()
@@ -272,6 +277,41 @@ public class OrderServiceClient {
 
         } catch (Exception e) {
             logger.error("Failed to fetch Inventory for productId: {}. Error: {}", productId, e.getMessage());
+            throw new RuntimeException("Inventory Service unavailable. Please try again later.");
+        }
+    }
+
+    public void initiatePaymentProcess(String orderNumber, String username, String role){
+        logger.debug("Calling Payment Service for Order : {}", orderNumber);
+
+        String url = paymentServiceUrl + "/internal/getInventory";
+
+        HttpHeaders headers = new HttpHeaders();
+        //headers.setBearerAuth(jwtToken.substring(7)); // forward the same JWT
+        headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+
+            ResponseEntity<InventoryResponseDto> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    InventoryResponseDto.class
+            );
+
+            if (response.getBody() == null) {
+                logger.warn("Payment Service failed");
+                throw new RuntimeException("Payment Service Failed");
+            }
+
+            //logger.debug("Inventory fetched. ProductId: {}, Inventory Id: {}", productId, response.getBody().getInventoryId());
+
+            //return response.getBody();
+
+        } catch (Exception e) {
+            //logger.error("Failed to fetch Inventory for productId: {}. Error: {}", productId, e.getMessage());
             throw new RuntimeException("Inventory Service unavailable. Please try again later.");
         }
     }

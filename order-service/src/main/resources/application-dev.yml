@@ -33,6 +33,7 @@ service-urls:
   discount-service-url: http://localhost:9092/api/coupon
   inventory-service-url: http://localhost:9093/api/inventory
   products-service-url: http://localhost:9096/api/products
+  payment-service-url: http://localhost:9095/api/payments
 
 logging:
   level:
