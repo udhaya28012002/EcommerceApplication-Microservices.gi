@@ -107,8 +107,6 @@ public class InventoryService {
         Inventory inventory = inventoryRepository.findByProductId(productId)
                 .orElseThrow(() -> new InventoryNotFoundException("No Inventory found for this ProductId : " + productId));
 
-        System.out.println(" Inventory Quantity : " + inventory.getProductQuantity());
-
         return new InventoryResponseDto(productId, inventory.getInventoryId(), inventory.getProductQuantity());
     }
 

@@ -120,6 +120,17 @@ public class OrderServiceTokenProvider {
             throw new ServiceAuthException("Missing allowed_services claim");
         }
 
+        if(svc.equalsIgnoreCase("payment-service")){
+
+            String orderId = claims.get("orderId", String.class);
+
+            return new ServiceTokenClaims(
+                    svc,
+                    allowedServices,
+                    orderId
+            );
+        }
+
         // STEP 6: Extract and validate user context
         String username = claims.get("username", String.class);
         String role     = claims.get("role",     String.class);

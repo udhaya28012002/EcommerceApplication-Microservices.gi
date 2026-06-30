@@ -23,6 +23,16 @@ public class OrdersResDto {
 
     private LocalDateTime orderDate;
 
+    private String paymentIntentId;
+
+    public String getPaymentIntentId() {
+        return paymentIntentId;
+    }
+
+    public void setPaymentIntentId(String paymentIntentId) {
+        this.paymentIntentId = paymentIntentId;
+    }
+
     public LocalDateTime getOrderDate() {
         return orderDate;
     }

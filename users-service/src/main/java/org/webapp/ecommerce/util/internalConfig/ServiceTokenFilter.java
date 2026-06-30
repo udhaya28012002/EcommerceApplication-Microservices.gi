@@ -47,13 +47,6 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println(
-                "ServiceTokenFilter.doFilterInternal()"
-                        + " | URI=" + request.getRequestURI()
-                        + " | DispatcherType=" + request.getDispatcherType()
-                        + " | Filter=" + System.identityHashCode(this)
-        );
-
         final String requestUri = request.getRequestURI();
         final String method = request.getMethod();
 

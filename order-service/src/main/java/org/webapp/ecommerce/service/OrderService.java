@@ -4,7 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.webapp.ecommerce.client.OrderServiceClient;
 import org.webapp.ecommerce.dto.request.OrderItemRequestDto;
@@ -13,10 +15,8 @@ import org.webapp.ecommerce.dto.response.*;
 import org.webapp.ecommerce.entity.OrderItems;
 import org.webapp.ecommerce.entity.OrderStatus;
 import org.webapp.ecommerce.entity.Orders;
-import org.webapp.ecommerce.exception.OrderItemsNotFoundException;
-import org.webapp.ecommerce.exception.OrderNotFoundException;
-import org.webapp.ecommerce.exception.OrderStatusUpdateException;
-import org.webapp.ecommerce.exception.ProductOutOfStockException;
+import org.webapp.ecommerce.entity.PaymentStatus;
+import org.webapp.ecommerce.exception.*;
 import org.webapp.ecommerce.repository.OrderRepository;
 import org.webapp.ecommerce.util.CurrentUserService;
 
@@ -31,13 +31,15 @@ public class OrderService {
     private final CurrentUserService currentUserService;
     private final OrderServiceClient orderServiceClient;
 
+    @Value("${payment.currencyCode}")
+    private String currencyCode;
+
     private static final int DEFAULT_DISCOUNT = 0;
 
     @PersistenceContext
     private EntityManager entityManager;
 
     private final Logger log = LoggerFactory.getLogger(OrderService.class);
-
 
     public static final Map<OrderStatus, Set<OrderStatus>> VALID_STATUS_TRANSITIONS =
             Map.of(
@@ -63,6 +65,9 @@ public class OrderService {
                     Set.of(),
 
                     OrderStatus.CANCELLED,
+                    Set.of(),
+
+                    OrderStatus.FAILED,
                     Set.of()
             );
 
@@ -72,7 +77,7 @@ public class OrderService {
         this.orderServiceClient = orderServiceClient;
     }
 
-    @Transactional
+    /*@Transactional
     public OrdersResDto placeOrder(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
 
         int discount = 0;
@@ -84,7 +89,7 @@ public class OrderService {
 
         log.debug("Order placement started for user: {}", loggedUser);
 
-       if (placeOrderRequest.getItems() == null || placeOrderRequest.getItems().isEmpty()) {
+        if (placeOrderRequest.getItems() == null || placeOrderRequest.getItems().isEmpty()) {
 
             log.warn("Order items missing for user: {}", loggedUser);
 
@@ -101,7 +106,7 @@ public class OrderService {
 
         log.info("Generated order number: {}", order.getOrderNumber());
 
-        List<OrderItems> orderItemsList = buildOrderItems(loggedUser,placeOrderRequest, order, discount, deliveryCharge, role);
+        List<OrderItems> orderItemsList = buildOrderItems(loggedUser, placeOrderRequest, order, discount, deliveryCharge, role);
 
         double totalPricePerOrder = orderItemsList.stream()
                 .mapToDouble(OrderItems::getTotalPrice)
@@ -111,7 +116,7 @@ public class OrderService {
 
         ApplyCouponResponse applyCouponResponse = orderServiceClient.checkCouponsAndRedeem(loggedUser, placeOrderRequest.getCouponCode(), totalPricePerOrder, role);// Need to Invoke From Discount Service:
 
-        double finalPrice = applyCouponResponse.getFinalPrice();
+        Long finalPrice = applyCouponResponse.getFinalPrice();
         order.setFinalPrice(finalPrice);
 
         order.setAppliedCoupon(applyCouponResponse.getCouponName());
@@ -122,6 +127,19 @@ public class OrderService {
 
         // PAYMENT PAGE (IF SUCCESS WE NEED TO PLACE ORDER OTHERWISE REVERT),
 
+        //Creating Payment Intent:
+        String paymentId = orderServiceClient.initiatePaymentIntent(
+                order.getOrderNumber(),
+                loggedUser,
+                role,
+                finalPrice,
+                currencyCode
+        );
+
+        //Confirming Payment Intent:
+        PaymentResponse paymentResponse = orderServiceClient.confirmPaymentProcess(loggedUser, role, paymentId);
+
+
         updatingStocks(loggedUser, orderItemsList, role);
 
         log.info("Inventory updated successfully for order: {}", order.getOrderNumber());
@@ -130,13 +148,163 @@ public class OrderService {
 
         Orders savedOrder = orderServiceRepository.save(order);
 
-        if(savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)){
-            log.info("Order confirmed successfully for user: {}. OrderId: {}",loggedUser, savedOrder.getOrderId());
+        if (savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
+            log.info("Order confirmed successfully for user: {}. OrderId: {}", loggedUser, savedOrder.getOrderId());
         }
 
         return buildOrderResDto(savedOrder);
+    }*/
+
+    @Transactional
+    public void placeOrderReq(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
+
+        int discount = 0;
+
+        double deliveryCharge = 0;
+
+        String loggedUser = currentUserService.getLoggedInUser();
+        String role = currentUserService.getLoggedInUserRole();
+
+        log.debug("Order placement started for user: {}", loggedUser);
+
+        if (placeOrderRequest.getItems() == null || placeOrderRequest.getItems().isEmpty()) {
+
+            log.warn("Order items missing for user: {}", loggedUser);
+
+            throw new OrderItemsNotFoundException("Order info is missing");
+        }
+
+        LocalDateTime today = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        Orders order = new Orders();
+        order.setOrderDate(today);
+        order.setUsername(loggedUser);
+        order.setOrderNumber("ORD-" + today.format(formatter));
+
+        log.info("Generated order number: {}", order.getOrderNumber());
+
+        List<OrderItems> orderItemsList = buildOrderItems(loggedUser, placeOrderRequest, order, discount, deliveryCharge, role);
+
+        double totalPricePerOrder = orderItemsList.stream()
+                .mapToDouble(OrderItems::getTotalPrice)
+                .sum();
+
+        log.info("Total order price before discount: {}", totalPricePerOrder);
+
+        ApplyCouponResponse applyCouponResponse = orderServiceClient.checkCouponsAndRedeem(loggedUser, placeOrderRequest.getCouponCode(), totalPricePerOrder, role);// Need to Invoke From Discount Service:
+
+        Long finalPrice = applyCouponResponse.getFinalPrice();
+        order.setFinalPrice(finalPrice);
+
+        order.setAppliedCoupon(applyCouponResponse.getCouponName());
+
+        order.setOrderItemsList(orderItemsList);
+
+        log.info("Final order price after discount: {}", finalPrice);
+
+        // PAYMENT PAGE (IF SUCCESS WE NEED TO PLACE ORDER OTHERWISE REVERT),
+
+        //Creating Payment Intent:
+        PaymentResponse paymentResponse1 = orderServiceClient.initiatePaymentIntent(
+                order.getOrderNumber(),
+                loggedUser,
+                role,
+                finalPrice,
+                currencyCode
+        );
+
+        String stripePaymentIntentId = paymentResponse1.getStripePaymentIntentId();
+
+        order.setStripePaymentIntentId(stripePaymentIntentId);
+
+        order.setOrderStatus(OrderStatus.CREATED);
+
+        Orders savedOrder = orderServiceRepository.save(order);
+
+        log.debug("Order is set to Status : {} and waiting for payment for OrderId : {}", OrderStatus.CREATED, order.getOrderNumber());
+
+        //Confirming Payment Intent:
+        PaymentResponse paymentResponse2 = orderServiceClient.confirmPaymentProcess(loggedUser, role, paymentResponse1.getPaymentId());
+
+        log.debug("Payment Id : {} is on status : {} and waiting for the payment to be succeeded", paymentResponse2.getPaymentId(), paymentResponse2.getStatus());
     }
 
+    @Transactional
+    public boolean confirmOrder(PaymentResponse paymentResponse) {
+
+        Orders order = orderServiceRepository.findByOrderNumber(paymentResponse.getOrderId());
+
+        if (order == null) {
+            throw new OrderNotFoundException("Order not found: " + paymentResponse.getOrderId());
+        }
+
+        if (!paymentResponse.getOrderId().equals(order.getOrderNumber())) {
+            throw new OrderProcessingException("Payment does not belong to this order.");
+        }
+
+        if (!(paymentResponse.getAmount() == order.getFinalPrice())) {
+            throw new OrderProcessingException("Payment does not belong to this order.");
+        }
+
+        // ── Idempotency guard — protects against Stripe webhook retries ─────────
+        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
+            log.warn("Order already confirmed — ignoring duplicate confirmation. OrderNumber: {}",
+                    order.getOrderNumber());
+            return true;
+        }
+
+        if (order.getOrderStatus() == OrderStatus.FAILED) {
+            log.warn("Order already marked FAILED — ignoring late confirmation. OrderNumber: {}",
+                    order.getOrderNumber());
+            return false;
+        }
+
+        List<OrderItems> orderItemsList = order.getOrderItemsList();
+
+        if (paymentResponse.getStatus() != PaymentStatus.SUCCEEDED) {
+            markOrderAsFailed(order.getOrderNumber());
+            throw new OrderProcessingException("Payment Failed");
+        }
+
+        try {
+            updatingStocks(order.getUsername(), orderItemsList, "ROLE_CUSTOMER");
+            log.info("Inventory updated successfully for order: {}", paymentResponse.getOrderId());
+
+        } catch (Exception ex) {
+            // Inventory call failed — don't silently roll back order status with it.
+            // Mark order as FAILED in its own transaction so the DB reflects reality,
+            // then surface the error so the caller knows something went wrong.
+            log.error("Inventory update failed for order: {}. Reason: {}",
+                    paymentResponse.getOrderId(), ex.getMessage());
+            markOrderAsFailed(order.getOrderNumber());
+            throw new OrderProcessingException(
+                    "Order confirmation failed during inventory update: " + ex.getMessage());
+        }
+
+        order.setOrderStatus(OrderStatus.CONFIRMED);
+
+        Orders savedOrder = orderServiceRepository.save(order);
+
+        if (savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
+            log.info("Order confirmed successfully for user: {}. OrderId: {}",
+                    order.getUsername(), savedOrder.getOrderId());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Runs in its OWN transaction — commits even if the caller's transaction later rolls back
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markOrderAsFailed(String orderNumber) {
+        Orders order = orderServiceRepository.findByOrderNumber(orderNumber);
+        if (order != null && order.getOrderStatus() != OrderStatus.FAILED) {
+            order.setOrderStatus(OrderStatus.FAILED);
+            orderServiceRepository.save(order);
+            log.info("Order marked as FAILED. OrderNumber: {}", orderNumber);
+        }
+    }
     public void checkOut() {
 
         String loggedUser = currentUserService.getLoggedInUser();
@@ -157,11 +325,11 @@ public class OrderService {
 
         PlaceOrderRequest prepareOrderReq = new PlaceOrderRequest();
 
-        for(CartCategoryResponseDto cartCategory: cart.getCartItemsCategoryResponseDtoList()){
+        for (CartCategoryResponseDto cartCategory : cart.getCartItemsCategoryResponseDtoList()) {
             prepareOrderReq.setItems(prepareOrderFromCart(cartCategory.getCartItemsResponseDtoList()));
         }
 
-        placeOrder(prepareOrderReq);
+        placeOrderReq(prepareOrderReq);
 
         log.info("Checkout completed successfully for user: {}", loggedUser);
     }
@@ -346,7 +514,7 @@ public class OrderService {
         return "Status Changed";
     }
 
-    public List<String> filterUsernamesByOrderAmt(double orderAmt){
+    public List<String> filterUsernamesByOrderAmt(double orderAmt) {
         return orderServiceRepository.findUsernamesByFilterPrice(orderAmt);
     }
 
@@ -362,20 +530,28 @@ public class OrderService {
 
         validateOrderStatusUpdate(orders.getOrderStatus(), OrderStatus.CANCELLED);
 
-        //Rever the Inventory Count
+        // Reversible local-system actions first
         revertInventory(orders);
-
-        //Revert the Coupons if any used:
-
-        String message = orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
-
-        log.info("{} for cancelled order: {}", message, orderNumber);
 
         log.info("Inventory reverted successfully for cancelled order: {}", orderNumber);
 
-        //Updating the Order Status
-        orders.setOrderStatus(OrderStatus.CANCELLED);
+        if(!orders.getAppliedCoupon().equalsIgnoreCase("No Coupon is used")){
+            String message = orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
+            log.info("{} for cancelled order: {}", message, orderNumber);
 
+        }
+        else {
+            log.info("No coupon used for this order : {}", orderNumber);
+        }
+
+        // Irreversible external action LAST — only after everything else succeeded
+        PaymentResponse paymentResponse = orderServiceClient.initiateRefund(
+                loggedUser, role, orders.getStripePaymentIntentId());
+
+        log.info("Refund initiated for order: {}. PaymentStatus: {}", orderNumber, paymentResponse.getStatus());
+
+        // Commit the status change last, atomically with the rest of this transaction
+        orders.setOrderStatus(OrderStatus.CANCELLED);
         orderServiceRepository.save(orders);
 
         log.info("Order cancelled successfully. OrderNumber: {}", orderNumber);
@@ -436,7 +612,7 @@ public class OrderService {
             throw new OrderStatusUpdateException("Order is already in " + newOrderStatus + " status");
         }
 
-        Set<OrderStatus> allowedStatuses = VALID_STATUS_TRANSITIONS.get(prevOrderStatus);
+        Set<OrderStatus> allowedStatuses = VALID_STATUS_TRANSITIONS.getOrDefault(prevOrderStatus, Collections.emptySet());
 
         if (!allowedStatuses.contains(newOrderStatus)) {
 
@@ -464,6 +640,7 @@ public class OrderService {
         );
         ordersResDto.setFinalPrice(savedOrder.getFinalPrice());
         ordersResDto.setAppliedCoupon(savedOrder.getAppliedCoupon());
+        ordersResDto.setPaymentIntentId(savedOrder.getStripePaymentIntentId());
         return ordersResDto;
     }
 
@@ -486,6 +663,7 @@ public class OrderService {
         );
         ordersResDto.setFinalPrice(savedOrder.getFinalPrice());
         ordersResDto.setAppliedCoupon(savedOrder.getAppliedCoupon());
+        ordersResDto.setPaymentIntentId(savedOrder.getStripePaymentIntentId());
         return ordersResDto;
     }
 
@@ -494,17 +672,13 @@ public class OrderService {
         Map<Long, Integer> inventoryUpdate = new HashMap<>();
 
         for (OrderItems orderItems : orderItemsList) {
-
             inventoryUpdate.put(orderItems.getProductId(), orderItems.getQuantity());
-
-            entityManager.flush();
         }
 
         orderServiceClient.updateInventory(username, inventoryUpdate, role);
-
     }
 
-    private List<OrderItems> buildOrderItems(String username, PlaceOrderRequest placeOrderRequest, Orders order, int discount, double deliveryCharge, String role) throws ProductOutOfStockException{
+    private List<OrderItems> buildOrderItems(String username, PlaceOrderRequest placeOrderRequest, Orders order, int discount, double deliveryCharge, String role) throws ProductOutOfStockException {
 
         List<OrderItems> orderItemsList = new ArrayList<>();
 
@@ -537,7 +711,7 @@ public class OrderService {
         return orderItemsList;
     }
 
-    private void validateIfProductIsAvailableForOrder(int stockQuantity, int buyQuantity) throws ProductOutOfStockException{
+    private void validateIfProductIsAvailableForOrder(int stockQuantity, int buyQuantity) throws ProductOutOfStockException {
 
         if (stockQuantity <= 0 || buyQuantity > stockQuantity) {
 

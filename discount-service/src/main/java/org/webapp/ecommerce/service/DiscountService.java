@@ -90,8 +90,6 @@ public class DiscountService {
 
         List<DiscountOnUsers> discountedUsers = new ArrayList<>();
 
-        System.out.println("ALL USER NAMES :  " + allUsernames);
-
         LocalDate expiry = LocalDate.now().plusMonths(dto.getValidityInMonths());
 
         for (String username : allUsernames) {
@@ -362,8 +360,6 @@ public class DiscountService {
                 ));
 
         displayCouponsRes.setAvailableCoupons(couponDetailsMap);
-
-        System.out.println(displayCouponsRes.getAvailableCoupons());
 
         return displayCouponsRes;
     }

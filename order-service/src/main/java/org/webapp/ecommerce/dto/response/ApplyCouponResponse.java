@@ -14,7 +14,7 @@ public class ApplyCouponResponse {
     private String message;
 
     @Min(value = 1, message = "Final Price should be valid")
-    private double finalPrice;
+    private Long finalPrice;
 
     public String getCouponName() {
         return couponName;
@@ -40,11 +40,11 @@ public class ApplyCouponResponse {
         this.message = message;
     }
 
-    public double getFinalPrice() {
+    public Long getFinalPrice() {
         return finalPrice;
     }
 
-    public void setFinalPrice(double finalPrice) {
+    public void setFinalPrice(Long finalPrice) {
         this.finalPrice = finalPrice;
     }
 }

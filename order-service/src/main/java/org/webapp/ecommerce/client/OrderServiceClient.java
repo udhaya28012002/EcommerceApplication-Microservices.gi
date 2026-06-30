@@ -8,15 +8,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.webapp.ecommerce.dto.response.ApplyCouponResponse;
-import org.webapp.ecommerce.dto.response.CartResponseDto;
-import org.webapp.ecommerce.dto.response.InventoryResponseDto;
-import org.webapp.ecommerce.dto.response.ProductResDto;
+import org.webapp.ecommerce.dto.request.PaymentRequest;
+import org.webapp.ecommerce.dto.response.*;
+import org.webapp.ecommerce.entity.PaymentMethodType;
 import org.webapp.ecommerce.util.internalConfig.OrderServiceTokenProvider;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class OrderServiceClient {
@@ -52,7 +53,7 @@ public class OrderServiceClient {
 
         String url = UriComponentsBuilder
                 .fromUriString(discountServiceUrl + "/internal/checkCouponsAndRedeem")
-                .queryParam("coupon",couponCode)
+                .queryParam("coupon", couponCode)
                 .queryParam("totalPricePerOrder", totalPricePerOrder)
                 .build()
                 .toUriString();
@@ -210,7 +211,7 @@ public class OrderServiceClient {
         }
     }
 
-    public CartResponseDto getCart(String username, String role){
+    public CartResponseDto getCart(String username, String role) {
 
         logger.debug("Calling Cart Service for user: {}", username);
 
@@ -245,7 +246,7 @@ public class OrderServiceClient {
 
     }
 
-    public InventoryResponseDto getInventory(long productId, String username, String role){
+    public InventoryResponseDto getInventory(long productId, String username, String role) {
 
         logger.debug("Calling Inventory Service for productId: {}", productId);
 
@@ -281,38 +282,148 @@ public class OrderServiceClient {
         }
     }
 
-    public void initiatePaymentProcess(String orderNumber, String username, String role){
-        logger.debug("Calling Payment Service for Order : {}", orderNumber);
+    public PaymentResponse initiatePaymentIntent(String orderNumber, String username, String role, Long amount, String currency) {
 
-        String url = paymentServiceUrl + "/internal/getInventory";
+        //Generating Payment Request Object:
+        PaymentRequest paymentRequest = new PaymentRequest(
+                orderNumber,
+                username,
+                amount,
+                currency,
+                PaymentMethodType.CARD
+        );
+
+        logger.debug("Creating Payment Intent for Order: {}", orderNumber);
+
+        String url = paymentServiceUrl + "/internal/createPaymentIntent";
 
         HttpHeaders headers = new HttpHeaders();
-        //headers.setBearerAuth(jwtToken.substring(7)); // forward the same JWT
+        headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
+
+        HttpEntity<PaymentRequest> entity = new HttpEntity<>(paymentRequest, headers);
+
+        try {
+
+            ResponseEntity<PaymentResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    PaymentResponse.class
+            );
+
+            if (response.getBody() == null) {
+                logger.warn("Payment Service returned an empty response for order: {}", orderNumber);
+                throw new RuntimeException("Payment Service failed to create Payment Intent");
+            }
+
+            logger.debug("Payment Intent created successfully. Order: {}, PaymentIntentId: {}, PaymentId : {}",
+                    orderNumber,
+                    response.getBody().getStripePaymentIntentId(),
+                    response.getBody().getPaymentId());
+
+            return response.getBody();
+
+        } catch (HttpStatusCodeException ex) {
+            logger.error("Payment Service error. Status: {}, Body: {}",
+                    ex.getStatusCode(),
+                    ex.getResponseBodyAsString());
+            throw new RuntimeException("Payment Service error: " + ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            logger.error("Failed to create Payment Intent for order: {}. Error: {}",
+                    orderNumber,
+                    ex.getMessage(),
+                    ex);
+            throw new RuntimeException("Payment Service unavailable. Please try again later.");
+        }
+    }
+
+    public PaymentResponse confirmPaymentProcess(String username, String role, UUID paymentId) {
+
+        logger.debug("Confirming Payment Intent for PaymentIntentId : {}", paymentId);
+
+        String url = paymentServiceUrl + "/internal/" + paymentId + "/confirm";
+
+        HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
         try {
 
-            ResponseEntity<InventoryResponseDto> response = restTemplate.exchange(
+            ResponseEntity<PaymentResponse> response = restTemplate.exchange(
                     url,
-                    HttpMethod.GET,
+                    HttpMethod.POST,
                     entity,
-                    InventoryResponseDto.class
+                    PaymentResponse.class
             );
 
             if (response.getBody() == null) {
-                logger.warn("Payment Service failed");
-                throw new RuntimeException("Payment Service Failed");
+                logger.warn("Payment Service returned an empty response for PaymentIntentID: {}", paymentId);
+                throw new RuntimeException("Payment Service failed to create Payment Intent");
             }
 
-            //logger.debug("Inventory fetched. ProductId: {}, Inventory Id: {}", productId, response.getBody().getInventoryId());
+            logger.debug("Payment Intent confirmed successfully. PaymentIntentId: {}, PaymentId : {}",
+                    response.getBody().getStripePaymentIntentId(),
+                    response.getBody().getPaymentId());
 
-            //return response.getBody();
+            return response.getBody();
 
-        } catch (Exception e) {
-            //logger.error("Failed to fetch Inventory for productId: {}. Error: {}", productId, e.getMessage());
-            throw new RuntimeException("Inventory Service unavailable. Please try again later.");
+        } catch (HttpStatusCodeException ex) {
+            logger.error("Payment Service error. Status: {}, Body: {}",
+                    ex.getStatusCode(),
+                    ex.getResponseBodyAsString());
+            throw new RuntimeException("Payment Service error: " + ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            logger.error("Failed to confirm Payment Intent for PaymentId: {}. Error: {}",
+                    paymentId,
+                    ex.getMessage(),
+                    ex);
+            throw new RuntimeException("Payment Service unavailable. Please try again later.");
+        }
+    }
+
+    public PaymentResponse initiateRefund(String username, String role, String paymentIntentId) {
+
+        logger.debug("Initiating refund for PaymentIntentId : {}", paymentIntentId);
+
+        String url = paymentServiceUrl + "/internal/" + paymentIntentId + "/refund";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+
+            ResponseEntity<PaymentResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    entity,
+                    PaymentResponse.class
+            );
+
+            if (response.getBody() == null) {
+                logger.warn("Payment Service returned an empty response for PaymentIntentID: {}", paymentIntentId);
+                throw new RuntimeException("Payment Service failed to initiate refund");
+            }
+
+            logger.debug("Refund initiated successfully. PaymentIntentId: {}, PaymentId : {}",
+                    response.getBody().getStripePaymentIntentId(),
+                    response.getBody().getPaymentId());
+
+            return response.getBody();
+
+        } catch (HttpStatusCodeException ex) {
+            logger.error("Payment Service error. Status: {}, Body: {}",
+                    ex.getStatusCode(),
+                    ex.getResponseBodyAsString());
+            throw new RuntimeException("Payment Service error: " + ex.getResponseBodyAsString());
+        } catch (Exception ex) {
+            logger.error("Failed to initiate refund for PaymentIntentId: {}. Error: {}",
+                    paymentIntentId,
+                    ex.getMessage(),
+                    ex);
+            throw new RuntimeException("Payment Service unavailable. Please try again later.");
         }
     }
 }

@@ -1,55 +1,38 @@
 package org.webapp.ecommerce.dto;
 
-
 import org.webapp.ecommerce.entity.PaymentStatus;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class PaymentResponse {
 
-    private String transactionId;
+    private UUID paymentId;
+    private String orderId;
+    private String stripePaymentIntentId;
     private PaymentStatus status;
-    private String message;
-    private LocalDateTime timestamp;
-    private boolean isSuccess;
+    private Long amount;
+    private String currency;
+    private LocalDateTime createdAt;
 
-    public boolean isSuccess() {
-        return isSuccess;
-    }
-
-    public void setSuccess(boolean success) {
-        isSuccess = success;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public PaymentStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(PaymentStatus status) {
+    // All-args constructor
+    public PaymentResponse(UUID paymentId, String orderId, String stripePaymentIntentId, PaymentStatus status,
+                           Long amount, String currency, LocalDateTime createdAt) {
+        this.paymentId = paymentId;
+        this.orderId = orderId;
+        this.stripePaymentIntentId = stripePaymentIntentId;
         this.status = status;
+        this.amount = amount;
+        this.currency = currency;
+        this.createdAt = createdAt;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+    // Getters
+    public UUID getPaymentId() { return paymentId; }
+    public String getOrderId() { return orderId; }
+    public String getStripePaymentIntentId() { return stripePaymentIntentId; }
+    public PaymentStatus getStatus() { return status; }
+    public Long getAmount() { return amount; }
+    public String getCurrency() { return currency; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

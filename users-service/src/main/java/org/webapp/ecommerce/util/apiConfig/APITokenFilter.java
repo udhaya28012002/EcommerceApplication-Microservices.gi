@@ -45,8 +45,6 @@ public class APITokenFilter extends OncePerRequestFilter {
 
         String path = request.getServletPath();
 
-        System.out.println("Should not filter is being executed....");
-
         return path.equals("/api/auth/authenticate")
                 || path.equals("/api/auth/createUser")
                 || path.equals("/api/auth/refreshAuth");
@@ -57,15 +55,6 @@ public class APITokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws ServletException, IOException {
-
-        System.out.println(
-                "APITokenFilter.doFilterInternal()"
-                        + " | URI=" + request.getRequestURI()
-                        + " | DispatcherType=" + request.getDispatcherType()
-                        + " | Filter=" + System.identityHashCode(this)
-        );
-
-        System.out.println("X-User-Id : " + request.getHeader("X-User-Id"));
 
         final String requestUri = request.getRequestURI();
         final String method = request.getMethod();

@@ -269,12 +269,9 @@ public class UserService implements UserDetailsService {
 
         Page<String> listOfUsernames = userRepo.findAllUsernames(PageRequest.of(page, size));
 
-        System.out.println("All UserNames : " + listOfUsernames.getContent());
-
         UserDetailsResponse allUserDetailsResponse = new UserDetailsResponse();
         allUserDetailsResponse.setListOfUsernames(listOfUsernames.getContent());
 
-        System.out.println("DTO : " + allUserDetailsResponse.getListOfUsernames());
         return allUserDetailsResponse;
     }
 

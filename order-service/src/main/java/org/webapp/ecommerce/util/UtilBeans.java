@@ -8,6 +8,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
+import org.webapp.ecommerce.repository.OrderRepository;
 import org.webapp.ecommerce.util.apiConfig.APITokenFilter;
 import org.webapp.ecommerce.util.apiConfig.OrderAPITokenProvider;
 import org.webapp.ecommerce.util.internalConfig.OrderServiceTokenProvider;
@@ -29,8 +30,8 @@ public class UtilBeans {
     }
 
     @Bean("serviceTokenFilter")
-    public ServiceTokenFilter serviceTokenFilter(OrderServiceTokenProvider cartServiceTokenProvider){
-        return new ServiceTokenFilter(cartServiceTokenProvider);
+    public ServiceTokenFilter serviceTokenFilter(OrderServiceTokenProvider cartServiceTokenProvider, OrderRepository orderRepository){
+        return new ServiceTokenFilter(cartServiceTokenProvider, orderRepository);
     }
 
     @Bean

@@ -57,3 +57,7 @@ known-services:
     - cart-service
     - discount-service
     - products-service
+    - payment-service
+
+payment:
+  currencyCode: INR

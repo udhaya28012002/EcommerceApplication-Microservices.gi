@@ -29,6 +29,8 @@ public class Orders {
 
     private String username;
 
+    private String stripePaymentIntentId;
+
     public Orders() {
     }
 
@@ -98,5 +100,13 @@ public class Orders {
 
     public void setOrderNumber(String orderNumber) {
         this.orderNumber = orderNumber;
+    }
+
+    public String getStripePaymentIntentId() {
+        return stripePaymentIntentId;
+    }
+
+    public void setStripePaymentIntentId(String stripePaymentIntentId) {
+        this.stripePaymentIntentId = stripePaymentIntentId;
     }
 }

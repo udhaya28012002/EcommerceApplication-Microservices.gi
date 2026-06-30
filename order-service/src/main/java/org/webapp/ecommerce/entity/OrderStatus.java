@@ -3,6 +3,7 @@ package org.webapp.ecommerce.entity;
 public enum OrderStatus {
     CREATED,
     PENDING,
+    FAILED,
     CONFIRMED,
     PROCESSING,
     SHIPPED,

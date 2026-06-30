@@ -67,7 +67,7 @@ spring:
               uri: http://localhost:9097
               predicates:
                 - Path=/api/auth/**
-                -
+
             # Route 8: Payment-Service
             - id: payment-service
               uri: http://localhost:9095

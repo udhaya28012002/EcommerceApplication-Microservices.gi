@@ -42,18 +42,13 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         // Skip auth for public paths
         if (PUBLIC_PATHS.stream()
                 .anyMatch(path::startsWith)) {
-            System.out.println("This is working.....");
             return chain.filter(exchange);
         }
-
-        System.out.println("This is starting working.......");
 
         // Get Authorization header
         String authHeader = exchange.getRequest()
                 .getHeaders()
                 .getFirst(HttpHeaders.AUTHORIZATION);
-
-        System.out.println("Auth Header : " + authHeader);
 
         // Check header exists and starts with "Bearer "
         if (authHeader == null
@@ -63,8 +58,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         // Extract the token (remove "Bearer " prefix)
         String token = authHeader.substring(7);
-
-        System.out.println("Token : " + token);
 
         try {
             // Validate token
@@ -80,15 +73,12 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                             .header("X-Token", claims.get("token", String.class))
                             .build();
 
-            System.out.println("Modified Req : " + modifiedRequest);
-
             return chain.filter(
                     exchange.mutate()
                             .request(modifiedRequest)
                             .build());
 
         } catch (Exception e) {
-            System.out.println("Exception is thrown in UnAuthorization.....");
             return unauthorizedResponse(exchange);
         }
     }

@@ -25,7 +25,7 @@ public class OrderRetryService {
         this.currentUserService = currentUserService;
     }
 
-    public OrdersResDto placeOrderRetry(PlaceOrderRequest request) {
+    public void placeOrderRetry(PlaceOrderRequest request) {
 
         String loggedUser = currentUserService.getLoggedInUser();
 
@@ -36,55 +36,51 @@ public class OrderRetryService {
         while (retries > 0) {
 
             try {
-
                 log.info("Attempting order placement for user: {}. Remaining retries: {}", loggedUser, retries);
 
-                return orderTransactionService.placeOrder(request);
+                orderTransactionService.placeOrderReq(request);
+
+                return;   // ← success — exit the method entirely, no fall-through
 
             } catch (
                     ObjectOptimisticLockingFailureException |
                     OptimisticLockException |
                     StaleStateException ex
             ) {
-
                 retries--;
 
-                log.warn("Optimistic locking failure for user {}. Retries left: {}", loggedUser, retries
-                );
+                log.warn("Optimistic locking failure for user {}. Retries left: {}", loggedUser, retries);
 
                 if (retries == 0) {
-
                     log.error("Order placement failed after maximum retries for user: {}", loggedUser);
-
                     throw new OrderProcessingException("Too many concurrent requests. Please try again");
                 }
 
                 try {
-
                     log.info("Waiting before retrying order placement for user: {}", loggedUser);
-
                     Thread.sleep(100);
-
                 } catch (InterruptedException interruptedException) {
-
                     Thread.currentThread().interrupt();
-
                     log.error("Order processing interrupted for user: {}", loggedUser, interruptedException);
-
                     throw new OrderProcessingException("Order processing interrupted");
                 }
 
             } catch (OrderItemsNotFoundException ex) {
-
                 log.error("Order placement failed for user: {}. Reason: {}", loggedUser, ex.getMessage());
-
                 throw ex;
+
             } catch (Exception ex) {
                 log.error("Error : " + ex.getMessage());
                 retries--;
+
+                if (retries == 0) {
+                    throw new OrderProcessingException("Order placement failed: " + ex.getMessage());
+                }
             }
         }
 
-        throw new IllegalStateException("Unexpected execution path");
+        // Only reached if the loop exits without success AND without throwing above
+        // (shouldn't normally happen given the retries==0 checks, but kept as a safety net)
+        throw new OrderProcessingException("Order placement failed after all retries");
     }
 }

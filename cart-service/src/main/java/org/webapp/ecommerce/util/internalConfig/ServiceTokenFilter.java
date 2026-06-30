@@ -46,8 +46,6 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("X-User-Id : " + request.getHeader("X-User-Id"));
-
         final String requestUri = request.getRequestURI();
         final String method = request.getMethod();
 
@@ -57,8 +55,6 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         log.info("SERVICE Token : " + token);
-
-        System.out.println("TOken : " + token);
 
         if (token == null) {
 

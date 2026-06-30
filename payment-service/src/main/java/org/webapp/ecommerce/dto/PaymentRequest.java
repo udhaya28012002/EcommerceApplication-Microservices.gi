@@ -1,29 +1,45 @@
 package org.webapp.ecommerce.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.webapp.ecommerce.entity.PaymentMethodType;
 
 public class PaymentRequest {
 
-    @NotNull(message = "Order ID is required")
+    @NotBlank(message = "Order ID is required")
     private String orderId;
 
-    @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
-    private Long amount;
+    @NotBlank(message = "User ID is required")
+    private String userId;
 
-    @NotBlank(message = "Currency is required")
-    private String currency;
+    @NotNull
+    @Min(value = 50, message = "Amount must be at least 50 cents")
+    private Long amount;             // in cents
 
-    @NotNull(message = "Payment method is required")
-    private PaymentMethodType paymentMethod;
+    @NotBlank
+    @Size(min = 3, max = 3, message = "Currency must be a 3-letter ISO code")
+    private String currency;         // "usd", "inr", etc.
 
+    @NotNull
+    private PaymentMethodType paymentMethodType;
+
+    // Getters and setters
     public String getOrderId() {
         return orderId;
     }
 
     public void setOrderId(String orderId) {
         this.orderId = orderId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Long getAmount() {
@@ -42,11 +58,11 @@ public class PaymentRequest {
         this.currency = currency;
     }
 
-    public PaymentMethodType getPaymentMethod() {
-        return paymentMethod;
+    public PaymentMethodType getPaymentMethodType() {
+        return paymentMethodType;
     }
 
-    public void setPaymentMethod(PaymentMethodType paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setPaymentMethodType(PaymentMethodType paymentMethodType) {
+        this.paymentMethodType = paymentMethodType;
     }
 }

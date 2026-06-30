@@ -70,8 +70,6 @@ public class UserServiceClient {
 
         logger.debug("Calling Cart Service");
 
-        System.out.println(jwtToken);
-
         String url = cartServiceUrl + "/internal/initCart";
 
         HttpHeaders headers = new HttpHeaders();

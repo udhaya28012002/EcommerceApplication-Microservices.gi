@@ -46,8 +46,6 @@ public class APITokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("X-User-Id : " + request.getHeader("X-User-Id"));
-
         final String requestUri = request.getRequestURI();
         final String method = request.getMethod();
 
@@ -83,7 +81,6 @@ public class APITokenFilter extends OncePerRequestFilter {
                     requestUri
             );
 
-            System.out.println("Role : " + claims.getRole());
 
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
@@ -93,12 +90,6 @@ public class APITokenFilter extends OncePerRequestFilter {
                     );
 
             SecurityContextHolder.getContext().setAuthentication(auth);
-
-            System.out.println("Authentication after filter = "
-                    + SecurityContextHolder.getContext().getAuthentication());
-
-            System.out.println("Authorities after filter = "
-                    + SecurityContextHolder.getContext().getAuthentication().getAuthorities());
 
             log.debug(
                     "Security context established. callerService={}, user={}, role={}",

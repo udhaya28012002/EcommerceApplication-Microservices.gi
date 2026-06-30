@@ -67,6 +67,14 @@ public class Payment {
 
     // Getters And Setters
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getOrderId() {
         return orderId;
     }

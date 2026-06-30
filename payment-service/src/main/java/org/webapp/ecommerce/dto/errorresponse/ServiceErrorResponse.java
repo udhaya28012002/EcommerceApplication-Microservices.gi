@@ -1,20 +1,18 @@
 package org.webapp.ecommerce.dto.errorresponse;
 
-import java.time.LocalDateTime;
-
 public class ServiceErrorResponse {
 
-    private String errorCode;
+    private int errorCode;
     private String message;
-    private LocalDateTime timeStamp;
+    private String timeStamp;
 
-    public ServiceErrorResponse(String errorCode, LocalDateTime timeStamp, String message) {
+    public ServiceErrorResponse(int errorCode, String timeStamp, String message) {
         this.errorCode = errorCode;
         this.timeStamp = timeStamp;
         this.message = message;
     }
 
-    public String getErrorCode() {
+    public int getErrorCode() {
         return errorCode;
     }
 
@@ -22,7 +20,7 @@ public class ServiceErrorResponse {
         return message;
     }
 
-    public LocalDateTime getTimeStamp() {
+    public String getTimeStamp() {
         return timeStamp;
     }
 

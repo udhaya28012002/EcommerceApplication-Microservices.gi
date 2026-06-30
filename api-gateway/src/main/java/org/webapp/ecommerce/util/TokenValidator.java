@@ -28,8 +28,6 @@ public class TokenValidator {
 
     public Claims validateAndExtract(String token) {
 
-        System.out.println("Validate the JWT..");
-
         Claims claims;
 
         // STEP 1: Verify signature + audience + expiry at parser level

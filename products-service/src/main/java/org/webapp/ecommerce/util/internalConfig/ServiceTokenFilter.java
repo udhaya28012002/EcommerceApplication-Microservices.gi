@@ -71,7 +71,6 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
         }
 
         try {
-            System.out.println("X-User-Id : " + request.getHeader("X-User-Id"));
 
             ServiceTokenClaims claims = tokenProvider.validateAndExtract(token);
 

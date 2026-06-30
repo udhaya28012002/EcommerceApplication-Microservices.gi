@@ -30,8 +30,6 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> addProduct(@RequestBody List<@Valid ProductReqDto> productReqDto){
 
-        System.out.println("Controller reached");
-
         log.debug("Add product request received. Total products: {}", productReqDto.size());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.addProduct(productReqDto));

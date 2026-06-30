@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
+import org.webapp.ecommerce.dto.response.PaymentResponse;
 import org.webapp.ecommerce.service.OrderRetryService;
 import org.webapp.ecommerce.service.OrderService;
 
@@ -31,7 +32,19 @@ public class OrderController {
 
         log.debug("Place order request received");
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderRetryService.placeOrderRetry(placeOrderRequest));
+        orderRetryService.placeOrderRetry(placeOrderRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("");
+    }
+
+    @PatchMapping("/internal/confirmed")
+    public ResponseEntity<?> updateOrderUponPaymentConfirmed(@RequestBody PaymentResponse paymentResponse){
+
+        log.info("Upon Payment confirmed, updating order status and updating Inventory for OrderNumber: {}", paymentResponse.getOrderId());
+
+        String msg = orderService.confirmOrder(paymentResponse) ? "Order Placed Successfully" : "Order Failed";
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(msg);
     }
 
     @GetMapping("/getOrder/{orderNumber}")

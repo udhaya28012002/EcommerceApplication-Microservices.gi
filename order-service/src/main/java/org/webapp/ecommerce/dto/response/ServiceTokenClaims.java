@@ -8,6 +8,7 @@ public class ServiceTokenClaims {
     private List<String> allowedServices;
     private String       username;
     private String       role;
+    private String orderId;
 
     public ServiceTokenClaims(String svc, String username, String role) {
         this.svc = svc;
@@ -15,11 +16,19 @@ public class ServiceTokenClaims {
         this.role = role;
     }
 
+
+
     public ServiceTokenClaims(String svc, List<String> allowedServices, String username, String role) {
         this.svc = svc;
         this.allowedServices = allowedServices;
         this.username = username;
         this.role = role;
+    }
+
+    public ServiceTokenClaims(String svc, List<String> allowedServices, String orderId) {
+        this.svc = svc;
+        this.allowedServices = allowedServices;
+        this.orderId = orderId;
     }
 
     public String getSvc() {
@@ -52,5 +61,13 @@ public class ServiceTokenClaims {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

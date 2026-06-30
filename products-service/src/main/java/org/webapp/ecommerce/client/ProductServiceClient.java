@@ -88,8 +88,6 @@ public class ProductServiceClient {
 
             logger.debug("Inventory fetched. ProductId: {}, Inventory Id: {}", productId, response.getBody().getInventoryId());
 
-            System.out.println(response.getBody().getAvailableQuantity());
-
             return response.getBody();
 
         } catch (Exception e) {

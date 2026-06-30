@@ -47,9 +47,7 @@ public class APITokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        System.out.println("X-User-Id : " + request.getHeader("X-User-Id"));
-
-        final String requestUri = request.getRequestURI();
+       final String requestUri = request.getRequestURI();
         final String method = request.getMethod();
 
         log.info("Processing api authentication. method={}, uri={}",
@@ -58,8 +56,6 @@ public class APITokenFilter extends OncePerRequestFilter {
         String token = extractToken(request);
 
         log.info("API Token : " + token);
-
-        System.out.println("Token : " + token);
 
         if (token == null) {
 

@@ -20,6 +20,8 @@ spring:
 
 jwt:
   service-secret: ${JWT_SECRET}
+  access-token-expiration: 300000
+  refresh-token-expiration: 10
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
@@ -32,3 +34,6 @@ known-services:
 logging:
   level:
     org.springframework.security: DEBUG
+
+service-urls:
+  order-service-url: http://localhost:9094/api/orders
