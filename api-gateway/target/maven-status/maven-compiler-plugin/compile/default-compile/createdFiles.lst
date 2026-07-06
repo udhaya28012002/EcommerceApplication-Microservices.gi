@@ -1,0 +1,6 @@
+org\webapp\ecommerce\exception\ServiceAuthException.class
+org\webapp\ecommerce\config\LoggingFilter.class
+org\webapp\ecommerce\util\TokenValidator.class
+org\webapp\ecommerce\ApiGatewayApplication.class
+org\webapp\ecommerce\util\loadconfig\TokenProperties.class
+org\webapp\ecommerce\util\JwtAuthFilter.class

@@ -1,0 +1,180 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: ecommerce-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD", "mysql", "-h", "127.0.0.1", "-P", "3306", "-uroot", "-p${DB_PASSWORD}", "-e", "SELECT 1" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  users-service:
+    image: users-service:1.0
+    container_name: users-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9097:9097"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/users_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      CART_SERVICE_URL: ${CART_SERVICE_URL}
+      DISCOUNT_SERVICE_URL: ${DISCOUNT_SERVICE_URL}
+    restart: unless-stopped
+
+  products-service:
+    image: products-service:1.0
+    container_name: products-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9096:9096"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/products_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+    restart: unless-stopped
+
+  payment-service:
+    image: payment-service:1.0
+    container_name: payment-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9095:9095"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/payment_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+    restart: unless-stopped
+
+  order-service:
+    image: order-service:1.0
+    container_name: order-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9094:9094"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/order_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      CART_SERVICE_URL: ${CART_SERVICE_URL}
+      DISCOUNT_SERVICE_URL: ${DISCOUNT_SERVICE_URL}
+      PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
+      PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+    restart: unless-stopped
+
+  inventory-service:
+    image: inventory-service:1.0
+    container_name: inventory-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9093:9093"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/inventory_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+    restart: unless-stopped
+
+  discount-service:
+    image: discount-service:1.0
+    container_name: discount-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9092:9092"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/discount_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      USERS_SERVICE_URL: ${USERS_SERVICE_URL}
+      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+    restart: unless-stopped
+
+  cart-service:
+    image: cart-service:1.0
+    container_name: cart-service
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "9090:9090"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/cart_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
+      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+    restart: unless-stopped
+
+  api-gateway:
+    image: api-gateway:1.0
+    container_name: api-gateway
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/cart_service
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
+      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      CART_SERVICE_URI: ${CART_SERVICE_URI}
+      USERS_SERVICE_URI: ${USERS_SERVICE_URI}
+      PRODUCTS_SERVICE_URI: ${PRODUCTS_SERVICE_URI}
+      ORDER_SERVICE_URI: ${ORDER_SERVICE_URI}
+      PAYMENT_SERVICE_URI: ${PAYMENT_SERVICE_URI}
+      INVENTORY_SERVICE_URI: ${INVENTORY_SERVICE_URI}
+      DISCOUNT_SERVICE_URI: ${DISCOUNT_SERVICE_URI}
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
