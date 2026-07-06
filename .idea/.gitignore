@@ -1,9 +1,6 @@
-# Default ignored files
-/shelf/
-/workspace.xml
-
 # Maven
 target/
+**/target/
 
 # IntelliJ
 .idea/
@@ -17,6 +14,6 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Add this to .gitignore
+# Spring profiles
 **/application-dev.yml
 **/application-prod.yml
