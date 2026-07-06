@@ -13,7 +13,7 @@ spring:
           routes:
             # Route 1: Cart-Service
             - id: cart-service
-              uri: http://localhost:9090
+              uri: ${CART_SERVICE_URI}
               predicates:
                 - Path=/api/cart/**
               filters:
@@ -34,49 +34,49 @@ spring:
 
             # Route 2: Discount-Service
             - id: discount-service
-              uri: http://localhost:9092
+              uri: ${DISCOUNT_SERVICE_URI}
               predicates:
                 - Path=/api/coupon/**
 
             # Route 3: Inventory-Service
             - id: inventory-service
-              uri: http://localhost:9093
+              uri: ${INVENTORY_SERVICE_URI}
               predicates:
                 - Path=/api/inventory/**
 
             # Route 4: Order-Service
             - id: order-service
-              uri: http://localhost:9094
+              uri: ${ORDER_SERVICE_URI}
               predicates:
                 - Path=/api/orders/**
 
             # Route 5: Products-Service
             - id: products-service
-              uri: http://localhost:9096
+              uri: ${PRODUCTS_SERVICE_URI}
               predicates:
                 - Path=/api/categories/**,/api/products/**
 
             # Route 6: Users-Service
             - id: users-service
-              uri: http://localhost:9097
+              uri: ${USERS_SERVICE_URI}
               predicates:
                 - Path=/api/users/**
 
             # Route 7: Users-Service
             - id: auth-service
-              uri: http://localhost:9097
+              uri: ${USERS_SERVICE_URI}
               predicates:
                 - Path=/api/auth/**
 
             # Route 8: Payment-Service
             - id: payment-service
-              uri: http://localhost:9095
+              uri: ${PAYMENT_SERVICE_URI}
               predicates:
                 - Path=/api/payments/**
 
 jwt:
-  access-token-expiration: 900000
-  refresh-token-expiration: 10
+  access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
   secret: ${JWT_SECRET}
 
 logging:

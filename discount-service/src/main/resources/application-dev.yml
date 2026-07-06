@@ -7,29 +7,27 @@ spring:
     name: discount-service
 
   datasource:
-    url: jdbc:mysql://localhost:3306/discount_service
-    #username: ${DB_USERNAME}
-    username: root
-    #password: ${DB_PASSWORD}
-    password: root
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
         format_sql: false
 
 jwt:
-  access-token-expiration: 900000
-  refresh-token-expiration: 10
+  access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}
+  refresh-token-expiration: ${REFRESH_TOKEN_EXPIRATION}
   service-secret: ${JWT_SECRET}
 
 service-urls:
-  users-service-url: http://localhost:9097/api/users
-  order-service-url: http://localhost:9097/api/orders
+  users-service-url: ${USERS_SERVICE_URL}
+  order-service-url: ${ORDER_SERVICE_URL}
 
 logging:
   level:
