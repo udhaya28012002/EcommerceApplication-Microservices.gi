@@ -2,6 +2,7 @@ package org.webapp.ecommerce.service;
 
 import org.webapp.ecommerce.client.UserServiceClient;
 import org.webapp.ecommerce.dto.request.*;
+import org.webapp.ecommerce.dto.response.UserDetailsDtoResponse;
 import org.webapp.ecommerce.enums.Role;
 import org.webapp.ecommerce.enums.UserStatus;
 import org.webapp.ecommerce.dto.response.InfoDto;
@@ -28,6 +29,7 @@ import org.webapp.ecommerce.util.CurrentUserService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 @Service
 public class UserService implements UserDetailsService {
@@ -265,12 +267,29 @@ public class UserService implements UserDetailsService {
         return userRegistrationTimeResponse;
     }*/
 
+    public UserDetailsDtoResponse getUserDetails(String username){
+        Users user  = userRepo.findByUserName(username);
+
+        return new UserDetailsDtoResponse(
+                user.getName(),
+                username,
+                user.getEmailId(),
+                user.getContactNo()
+        );
+    }
+
     public UserDetailsResponse getAllUsernames(int page, int size){
 
-        Page<String> listOfUsernames = userRepo.findAllUsernames(PageRequest.of(page, size));
+        Page<Object[]> pages = userRepo.findAllUsernamesAndEmails(PageRequest.of(page, size));
+
+        HashMap<String , String > usersMap = new HashMap<>();
+
+        for (Object[] row : pages) {
+            usersMap.put((String) row[0], (String) row[1]);
+        }
 
         UserDetailsResponse allUserDetailsResponse = new UserDetailsResponse();
-        allUserDetailsResponse.setListOfUsernames(listOfUsernames.getContent());
+        allUserDetailsResponse.setListOfUsernames(usersMap);
 
         return allUserDetailsResponse;
     }

@@ -20,11 +20,6 @@ import javax.swing.plaf.PanelUI;
 public class UtilBeans {
 
     @Bean
-    public ObjectMapper objectMapper(){
-        return new ObjectMapper();
-    }
-
-    @Bean
     public APITokenFilter apiTokenFilter(UserAPITokenProvider userAPITokenProvider){
         return new APITokenFilter(userAPITokenProvider);
     }

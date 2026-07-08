@@ -1,16 +1,16 @@
 package org.webapp.ecommerce.dto;
 
-import java.util.List;
+import java.util.Map;
 
 public class UserDetailsResponse {
 
-    private List<String> ListOfUsernames;
+    private Map<String, String> ListOfUsernames;
 
-    public List<String> getListOfUsernames() {
+    public Map<String, String> getListOfUsernames() {
         return ListOfUsernames;
     }
 
-    public void setListOfUsernames(List<String> listOfUsernames) {
+    public void setListOfUsernames(Map<String, String> listOfUsernames) {
         ListOfUsernames = listOfUsernames;
     }
 }

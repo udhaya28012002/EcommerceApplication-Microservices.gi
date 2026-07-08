@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.webapp.ecommerce.client.OrderServiceClient;
+import org.webapp.ecommerce.dto.kafkadto.OrderEvent;
 import org.webapp.ecommerce.dto.request.OrderItemRequestDto;
 import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
 import org.webapp.ecommerce.dto.response.*;
@@ -17,6 +18,7 @@ import org.webapp.ecommerce.entity.OrderStatus;
 import org.webapp.ecommerce.entity.Orders;
 import org.webapp.ecommerce.entity.PaymentStatus;
 import org.webapp.ecommerce.exception.*;
+import org.webapp.ecommerce.kafka.KafkaService;
 import org.webapp.ecommerce.repository.OrderRepository;
 import org.webapp.ecommerce.util.CurrentUserService;
 
@@ -30,6 +32,8 @@ public class OrderService {
     private final OrderRepository orderServiceRepository;
     private final CurrentUserService currentUserService;
     private final OrderServiceClient orderServiceClient;
+
+    private final KafkaService kafkaService;
 
     @Value("${payment.currencyCode}")
     private String currencyCode;
@@ -71,10 +75,11 @@ public class OrderService {
                     Set.of()
             );
 
-    public OrderService(OrderRepository orderServiceRepository, CurrentUserService currentUserService, OrderServiceClient orderServiceClient) {
+    public OrderService(OrderRepository orderServiceRepository, CurrentUserService currentUserService, OrderServiceClient orderServiceClient, KafkaService kafkaService) {
         this.orderServiceRepository = orderServiceRepository;
         this.currentUserService = currentUserService;
         this.orderServiceClient = orderServiceClient;
+        this.kafkaService = kafkaService;
     }
 
     /*@Transactional
@@ -156,7 +161,7 @@ public class OrderService {
     }*/
 
     @Transactional
-    public void placeOrderReq(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
+    public OrderEvent placeOrderReq(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
 
         int discount = 0;
 
@@ -203,6 +208,8 @@ public class OrderService {
 
         log.info("Final order price after discount: {}", finalPrice);
 
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+
         // PAYMENT PAGE (IF SUCCESS WE NEED TO PLACE ORDER OTHERWISE REVERT),
 
         //Creating Payment Intent:
@@ -228,10 +235,35 @@ public class OrderService {
         PaymentResponse paymentResponse2 = orderServiceClient.confirmPaymentProcess(loggedUser, role, paymentResponse1.getPaymentId());
 
         log.debug("Payment Id : {} is on status : {} and waiting for the payment to be succeeded", paymentResponse2.getPaymentId(), paymentResponse2.getStatus());
+
+        OrderEvent orderEvent = new OrderEvent(
+                userDetailsDtoResponse.getName(),
+                userDetailsDtoResponse.getEmailId(),
+                userDetailsDtoResponse.getContactNo(),
+                order.getUsername(),
+                paymentResponse2.getOrderId(),
+                order.getOrderStatus().name(),
+                paymentResponse2.getStatus().name(),
+                paymentResponse2.getPaymentId(),
+                paymentResponse2.getStripePaymentIntentId(),
+                paymentResponse2.getAmount()
+        );
+
+        //SENDING TO KAFKA TOPIC AS A PRODUCER
+        kafkaService.sendMessage(
+                orderEvent,
+                "order.created",
+                "orderCreated"
+        );
+
+        return orderEvent;
     }
 
     @Transactional
-    public boolean confirmOrder(PaymentResponse paymentResponse) {
+    public OrderEvent confirmOrder(PaymentResponse paymentResponse) {
+
+        String loggedUser = currentUserService.getLoggedInUser();
+        String role = currentUserService.getLoggedInUserRole();
 
         Orders order = orderServiceRepository.findByOrderNumber(paymentResponse.getOrderId());
 
@@ -247,20 +279,65 @@ public class OrderService {
             throw new OrderProcessingException("Payment does not belong to this order.");
         }
 
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+
+        //SENDING TO KAFKA TOPIC AS A PRODUCER
+        kafkaService.sendMessage(
+                new OrderEvent(
+                        userDetailsDtoResponse.getName(),
+                        userDetailsDtoResponse.getEmailId(),
+                        userDetailsDtoResponse.getContactNo(),
+                        order.getUsername(),
+                        paymentResponse.getOrderId(),
+                        order.getOrderStatus().name(),
+                        paymentResponse.getStatus().name(),
+                        paymentResponse.getPaymentId(),
+                        paymentResponse.getStripePaymentIntentId(),
+                        paymentResponse.getAmount()
+                ),
+                "order.confirmed",
+                "orderConfirmed"
+        );
+
         // ── Idempotency guard — protects against Stripe webhook retries ─────────
         if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
             log.warn("Order already confirmed — ignoring duplicate confirmation. OrderNumber: {}",
                     order.getOrderNumber());
-            return true;
+
+            return new OrderEvent(
+                    userDetailsDtoResponse.getName(),
+                    userDetailsDtoResponse.getEmailId(),
+                    userDetailsDtoResponse.getContactNo(),
+                    order.getUsername(),
+                    paymentResponse.getOrderId(),
+                    order.getOrderStatus().name(),
+                    paymentResponse.getStatus().name(),
+                    paymentResponse.getPaymentId(),
+                    paymentResponse.getStripePaymentIntentId(),
+                    paymentResponse.getAmount()
+            );
         }
 
         if (order.getOrderStatus() == OrderStatus.FAILED) {
             log.warn("Order already marked FAILED — ignoring late confirmation. OrderNumber: {}",
                     order.getOrderNumber());
-            return false;
+
+            return new OrderEvent(
+                    userDetailsDtoResponse.getName(),
+                    userDetailsDtoResponse.getEmailId(),
+                    userDetailsDtoResponse.getContactNo(),
+                    order.getUsername(),
+                    paymentResponse.getOrderId(),
+                    order.getOrderStatus().name(),
+                    paymentResponse.getStatus().name(),
+                    paymentResponse.getPaymentId(),
+                    paymentResponse.getStripePaymentIntentId(),
+                    paymentResponse.getAmount()
+            );
         }
 
         List<OrderItems> orderItemsList = order.getOrderItemsList();
+
 
         if (paymentResponse.getStatus() != PaymentStatus.SUCCEEDED) {
             markOrderAsFailed(order.getOrderNumber());
@@ -289,10 +366,20 @@ public class OrderService {
         if (savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
             log.info("Order confirmed successfully for user: {}. OrderId: {}",
                     order.getUsername(), savedOrder.getOrderId());
-            return true;
-        } else {
-            return false;
         }
+
+        return new OrderEvent(
+                userDetailsDtoResponse.getName(),
+                userDetailsDtoResponse.getEmailId(),
+                userDetailsDtoResponse.getContactNo(),
+                order.getUsername(),
+                paymentResponse.getOrderId(),
+                order.getOrderStatus().name(),
+                paymentResponse.getStatus().name(),
+                paymentResponse.getPaymentId(),
+                paymentResponse.getStripePaymentIntentId(),
+                paymentResponse.getAmount()
+        );
     }
 
     // Runs in its OWN transaction — commits even if the caller's transaction later rolls back
@@ -305,6 +392,7 @@ public class OrderService {
             log.info("Order marked as FAILED. OrderNumber: {}", orderNumber);
         }
     }
+
     public void checkOut() {
 
         String loggedUser = currentUserService.getLoggedInUser();
@@ -470,7 +558,10 @@ public class OrderService {
     }
 
     @Transactional
-    private void updateOrderStatus(String orderNumber, OrderStatus newOrderStatus) {
+    private void updateOrderStatus(String orderNumber, OrderStatus newOrderStatus, String topic, String key) {
+
+        String loggedUser = currentUserService.getLoggedInUser();
+        String role = currentUserService.getLoggedInUserRole();
 
         log.debug("Updating order status. OrderNumber: {}, NewStatus: {}", orderNumber, newOrderStatus);
 
@@ -481,36 +572,53 @@ public class OrderService {
         orders.setOrderStatus(newOrderStatus);
         orderServiceRepository.save(orders);
 
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+
+        //SENDING TO KAFKA TOPIC AS A PRODUCER
+        kafkaService.sendMessage(
+                new OrderEvent(
+                        userDetailsDtoResponse.getName(),
+                        userDetailsDtoResponse.getEmailId(),
+                        userDetailsDtoResponse.getContactNo(),
+                        orders.getUsername(),
+                        orderNumber,
+                        orders.getOrderStatus().name(),
+                        (long) orders.getFinalPrice()
+                ),
+                topic,
+                key
+        );
+
         log.info("Order status updated successfully. OrderNumber: {}, Status: {}", orderNumber, newOrderStatus);
     }
 
     public String markOrderAsPending(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.PENDING);
+        updateOrderStatus(orderNumber, OrderStatus.PENDING, "order.pending", "orderPending");
         return "Status Changed";
     }
 
     public String markOrderAsConfirmed(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.CONFIRMED);
+        updateOrderStatus(orderNumber, OrderStatus.CONFIRMED, "order.confirmed", "orderConfirmed");
         return "Status Changed";
     }
 
     public String markOrderAsProcessing(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.PROCESSING);
+        updateOrderStatus(orderNumber, OrderStatus.PROCESSING, "order.processing", "orderProcessing");
         return "Status Changed";
     }
 
     public String markAsShipped(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.SHIPPED);
+        updateOrderStatus(orderNumber, OrderStatus.SHIPPED, "order.shipped", "orderShipped");
         return "Status Changed";
     }
 
     public String markOrderAsOutForDelivery(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.OUT_OF_DELIVERY);
+        updateOrderStatus(orderNumber, OrderStatus.OUT_OF_DELIVERY, "order.outOfDelivery", "orderOutForDelivery");
         return "Status Changed";
     }
 
     public String markOrderAsDelivered(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.DELIVERED);
+        updateOrderStatus(orderNumber, OrderStatus.DELIVERED, "order.delivered", "orderDelivered");
         return "Status Changed";
     }
 
@@ -535,12 +643,11 @@ public class OrderService {
 
         log.info("Inventory reverted successfully for cancelled order: {}", orderNumber);
 
-        if(!orders.getAppliedCoupon().equalsIgnoreCase("No Coupon is used")){
+        if (!orders.getAppliedCoupon().equalsIgnoreCase("No Coupon is used")) {
             String message = orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
             log.info("{} for cancelled order: {}", message, orderNumber);
 
-        }
-        else {
+        } else {
             log.info("No coupon used for this order : {}", orderNumber);
         }
 
@@ -555,6 +662,26 @@ public class OrderService {
         orderServiceRepository.save(orders);
 
         log.info("Order cancelled successfully. OrderNumber: {}", orderNumber);
+
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+
+        //SENDING TO KAFKA TOPIC AS A PRODUCER
+        kafkaService.sendMessage(
+                new OrderEvent(
+                        userDetailsDtoResponse.getName(),
+                        userDetailsDtoResponse.getEmailId(),
+                        userDetailsDtoResponse.getContactNo(),
+                        orders.getUsername(),
+                        paymentResponse.getOrderId(),
+                        orders.getOrderStatus().name(),
+                        paymentResponse.getStatus().name(),
+                        paymentResponse.getPaymentId(),
+                        paymentResponse.getStripePaymentIntentId(),
+                        paymentResponse.getAmount()
+                ),
+                "order.cancelled",
+                "orderCancelled"
+        );
 
         return "Order Cancelled Successfully";
     }

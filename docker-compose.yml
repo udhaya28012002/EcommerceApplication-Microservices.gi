@@ -1,5 +1,16 @@
 services:
 
+  frontend:
+    image: nginx:alpine
+    container_name: frontend
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
   mysql:
     image: mysql:8.0
     container_name: ecommerce-mysql
@@ -7,7 +18,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3307:3306"
+      - "4306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -18,163 +29,210 @@ services:
       retries: 20
       start_period: 30s
 
+
+  kafka:
+    image: apache/kafka:4.2.0
+    container_name: kafka
+    hostname: kafka
+    restart: unless-stopped
+
+    ports:
+      - "9092:9092"
+
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list >/dev/null 2>&1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+
+
   users-service:
+    env_file:
+      - .env
+    build: ./users-service
     image: users-service:1.0
     container_name: users-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9097:9097"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${USERS_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/users_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      CART_SERVICE_URL: ${CART_SERVICE_URL}
-      DISCOUNT_SERVICE_URL: ${DISCOUNT_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   products-service:
+    env_file:
+      - .env
+    build: ./products-service
     image: products-service:1.0
     container_name: products-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9096:9096"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${PRODUCTS_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/products_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   payment-service:
+    env_file:
+      - .env
+    build: ./payment-service
     image: payment-service:1.0
     container_name: payment-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9095:9095"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${PAYMENT_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/payment_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
-      WEBHOOK_SECRET_KEY: ${WEBHOOK_SECRET_KEY}
-      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   order-service:
+    env_file:
+      - .env
+    build: ./order-service
     image: order-service:1.0
     container_name: order-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9094:9094"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${ORDER_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/order_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      CART_SERVICE_URL: ${CART_SERVICE_URL}
-      DISCOUNT_SERVICE_URL: ${DISCOUNT_SERVICE_URL}
-      PAYMENT_SERVICE_URL: ${PAYMENT_SERVICE_URL}
-      PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
-      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   inventory-service:
+    env_file:
+      - .env
+    build: ./inventory-service
     image: inventory-service:1.0
     container_name: inventory-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9093:9093"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${INVENTORY_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/inventory_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   discount-service:
+    env_file:
+      - .env
+    build: ./discount-service
     image: discount-service:1.0
     container_name: discount-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9092:9092"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${DISCOUNT_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/discount_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      USERS_SERVICE_URL: ${USERS_SERVICE_URL}
-      ORDER_SERVICE_URL: ${ORDER_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
   cart-service:
+    env_file:
+      - .env
+    build: ./cart-service
     image: cart-service:1.0
     container_name: cart-service
     depends_on:
       mysql:
         condition: service_healthy
-    ports:
-      - "9090:9090"
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${CART_SERVICE_PORT}
     environment:
       DB_URL: jdbc:mysql://mysql:3306/cart_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      PRODUCTS_SERVICE_URL: ${PRODUCTS_SERVICE_URL}
-      INVENTORY_SERVICE_URL: ${INVENTORY_SERVICE_URL}
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     restart: unless-stopped
 
+
+  notification-service:
+    env_file:
+      - .env
+    build: ./notification-service
+    image: notification-service:1.0
+    container_name: notification-service
+    depends_on:
+      kafka:
+        condition: service_healthy
+    expose:
+      - ${NOTIFICATION_SERVICE_PORT}
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    restart: unless-stopped
+
+
   api-gateway:
+    env_file:
+      - .env
+    build: ./api-gateway
     image: api-gateway:1.0
     container_name: api-gateway
     depends_on:
       mysql:
         condition: service_healthy
     ports:
-      - "8080:8080"
-    environment:
-      DB_URL: jdbc:mysql://mysql:3306/cart_service
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      JWT_SECRET: ${JWT_SECRET}
-      ACCESS_TOKEN_EXPIRATION: ${ACCESS_TOKEN_EXPIRATION}
-      REFRESH_TOKEN_EXPIRATION: ${REFRESH_TOKEN_EXPIRATION}
-      CART_SERVICE_URI: ${CART_SERVICE_URI}
-      USERS_SERVICE_URI: ${USERS_SERVICE_URI}
-      PRODUCTS_SERVICE_URI: ${PRODUCTS_SERVICE_URI}
-      ORDER_SERVICE_URI: ${ORDER_SERVICE_URI}
-      PAYMENT_SERVICE_URI: ${PAYMENT_SERVICE_URI}
-      INVENTORY_SERVICE_URI: ${INVENTORY_SERVICE_URI}
-      DISCOUNT_SERVICE_URI: ${DISCOUNT_SERVICE_URI}
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
     restart: unless-stopped
+
 
 volumes:
   mysql-data:
+  kafka-data:

@@ -1,5 +1,5 @@
 server:
-  port: 9093
+  port: ${INVENTORY_SERVICE_PORT}
 
 spring:
 
@@ -45,3 +45,4 @@ known-services:
   allowed-services:
     - products-service
     - order-service
+    - cart-service

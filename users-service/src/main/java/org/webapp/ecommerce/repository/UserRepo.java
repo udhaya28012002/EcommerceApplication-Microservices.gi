@@ -22,9 +22,9 @@ public interface UserRepo extends JpaRepository<Users, Long> {
     Users findByContactNo(String contactNo);
 
     @Query("""
-            SELECT u.userName
-            FROM Users u
-            """)
-    Page<String> findAllUsernames(Pageable pageable);
+    SELECT u.userName, u.emailId
+    FROM Users u
+    """)
+    Page<Object[]> findAllUsernamesAndEmails(Pageable pageable);
 
 }

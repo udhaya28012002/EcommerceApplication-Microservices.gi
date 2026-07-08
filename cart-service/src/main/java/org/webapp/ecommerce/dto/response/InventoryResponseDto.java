@@ -1,10 +1,19 @@
 package org.webapp.ecommerce.dto.response;
 
+
 public class InventoryResponseDto {
 
+    private long productId;
     private long inventoryId;
+    private int availableQuantity;
 
-    private int productQuantity;
+    public InventoryResponseDto(long productId, long inventoryId, int availableQuantity) {
+        this.productId = productId;
+        this.inventoryId = inventoryId;
+        this.availableQuantity = availableQuantity;
+    }
+
+    // getters and setters
 
     public long getInventoryId() {
         return inventoryId;
@@ -14,11 +23,11 @@ public class InventoryResponseDto {
         this.inventoryId = inventoryId;
     }
 
-    public int getProductQuantity() {
-        return productQuantity;
-    }
+    public long getProductId() { return productId; }
+    public void setProductId(long productId) { this.productId = productId; }
 
-    public void setProductQuantity(int productQuantity) {
-        this.productQuantity = productQuantity;
+    public int getAvailableQuantity() { return availableQuantity; }
+    public void setAvailableQuantity(int availableQuantity) {
+        this.availableQuantity = availableQuantity;
     }
 }

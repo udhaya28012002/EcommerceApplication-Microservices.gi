@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.webapp.ecommerce.dto.kafkadto.OrderEvent;
 import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
 import org.webapp.ecommerce.dto.response.PaymentResponse;
 import org.webapp.ecommerce.service.OrderRetryService;
@@ -32,9 +33,7 @@ public class OrderController {
 
         log.debug("Place order request received");
 
-        orderRetryService.placeOrderRetry(placeOrderRequest);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("");
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderRetryService.placeOrderRetry(placeOrderRequest));
     }
 
     @PatchMapping("/internal/confirmed")
@@ -42,9 +41,9 @@ public class OrderController {
 
         log.info("Upon Payment confirmed, updating order status and updating Inventory for OrderNumber: {}", paymentResponse.getOrderId());
 
-        String msg = orderService.confirmOrder(paymentResponse) ? "Order Placed Successfully" : "Order Failed";
+        OrderEvent res = orderService.confirmOrder(paymentResponse);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(msg);
+        return ResponseEntity.status(HttpStatus.CREATED).body(res);
     }
 
     @GetMapping("/getOrder/{orderNumber}")

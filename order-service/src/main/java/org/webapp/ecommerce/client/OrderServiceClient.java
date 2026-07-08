@@ -42,6 +42,9 @@ public class OrderServiceClient {
     @Value("${service-urls.payment-service-url}")
     private String paymentServiceUrl;
 
+    @Value("${service-urls.users-service-url}")
+    private String usersServiceUrl;
+
     public OrderServiceClient(RestTemplate restTemplate, OrderServiceTokenProvider tokenProvider) {
         this.restTemplate = restTemplate;
         this.tokenProvider = tokenProvider;
@@ -181,6 +184,41 @@ public class OrderServiceClient {
             logger.error("Failed to fetch Inventory Service for username: {}. Error: ", username, e);
             throw new RuntimeException("Inventory Service unavailable. Please try again later.");
         }
+    }
+
+    public UserDetailsDtoResponse getUserDetails(String username, String role){
+
+        String url = usersServiceUrl + "/internal/getUserDetails/" + username;
+
+        HttpHeaders headers = new HttpHeaders();
+        //headers.setBearerAuth(jwtToken.substring(7)); // forward the same JWT
+        headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
+
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        try {
+
+            ResponseEntity<UserDetailsDtoResponse> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    UserDetailsDtoResponse.class
+            );
+
+            if (response.getBody() == null) {
+                logger.warn("User Service returned null");
+                throw new RuntimeException("Usernames not found");
+            }
+
+            logger.debug("UserDetails fetched" + response.getBody().getUserName());
+
+            return response.getBody();
+
+        } catch (Exception e) {
+            logger.error("Failed to fetch UserDetails Error: {}", e.getMessage());
+            throw new RuntimeException("User Service unavailable. Please try again later.");
+        }
+
     }
 
     public void updateInventory(String username, Map<Long, Integer> productDetailsToBeUpdated, String role) {

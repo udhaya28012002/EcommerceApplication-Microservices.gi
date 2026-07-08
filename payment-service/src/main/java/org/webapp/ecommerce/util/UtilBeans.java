@@ -42,11 +42,11 @@ public class UtilBeans {
     }
     // ─────────────────────────────────────────────────────────────────────────
 
-    @Bean
+   /* @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
     }
-
+    */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

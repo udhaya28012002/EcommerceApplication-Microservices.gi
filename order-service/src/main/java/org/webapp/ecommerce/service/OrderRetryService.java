@@ -2,8 +2,8 @@ package org.webapp.ecommerce.service;
 
 import jakarta.persistence.OptimisticLockException;
 import org.hibernate.StaleStateException;
+import org.webapp.ecommerce.dto.kafkadto.OrderEvent;
 import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
-import org.webapp.ecommerce.dto.response.OrdersResDto;
 import org.webapp.ecommerce.exception.OrderItemsNotFoundException;
 import org.webapp.ecommerce.exception.OrderProcessingException;
 import org.webapp.ecommerce.util.CurrentUserService;
@@ -25,7 +25,7 @@ public class OrderRetryService {
         this.currentUserService = currentUserService;
     }
 
-    public void placeOrderRetry(PlaceOrderRequest request) {
+    public OrderEvent placeOrderRetry(PlaceOrderRequest request) {
 
         String loggedUser = currentUserService.getLoggedInUser();
 
@@ -38,9 +38,9 @@ public class OrderRetryService {
             try {
                 log.info("Attempting order placement for user: {}. Remaining retries: {}", loggedUser, retries);
 
-                orderTransactionService.placeOrderReq(request);
+                return orderTransactionService.placeOrderReq(request);
 
-                return;   // ← success — exit the method entirely, no fall-through
+                   // ← success — exit the method entirely, no fall-through
 
             } catch (
                     ObjectOptimisticLockingFailureException |

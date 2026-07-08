@@ -1,5 +1,5 @@
 server:
-  port: 9096
+  port: ${PRODUCTS_SERVICE_PORT}
 
 spring:
 

@@ -63,7 +63,7 @@ public class CartOperationsService {
 
         CartItems existingCartItems = cartItemRepository.findByCartAndProductId(cart, productId);
 
-        int availableQuantity = cartServiceClient.getInventory(productId, loggedUser, role).getProductQuantity(); // Need to get the inventory data from Inventory Service;
+        int availableQuantity = cartServiceClient.getInventory(productId, loggedUser, role).getAvailableQuantity(); // Need to get the inventory data from Inventory Service;
 
         if (existingCartItems != null) {
 
@@ -131,7 +131,7 @@ public class CartOperationsService {
             throw new CartEmptyException("No Product Found to Remove from Cart");
         }
 
-        boolean returnVal = cartItemRepository.deleteByCartAndProductId(cart, productId);
+        boolean returnVal = cartItemRepository.deleteByCartAndProductId(cart, productId) > 0;
 
         logger.info("Product removed from cart successfully. User: {}, ProductId: {}", loggedUser, productId);
 
@@ -179,7 +179,7 @@ public class CartOperationsService {
 
         int updatedQuantity = positive ? currentQuantity + quantity : currentQuantity - quantity;
 
-        int availableQuantity = cartServiceClient.getInventory(productId, loggedUser, role).getProductQuantity(); // Need to get the inventory data from Inventory Service;
+        int availableQuantity = cartServiceClient.getInventory(productId, loggedUser, role).getAvailableQuantity(); // Need to get the inventory data from Inventory Service;
 
         if (updatedQuantity > availableQuantity) {
 
@@ -290,7 +290,7 @@ public class CartOperationsService {
 
             String computeKey = products.getProductCategory();
 
-            CartItemsResponseDto cartItemsResponseDto = buildCartItemsResponse(products, quantity, inventory.getProductQuantity());
+            CartItemsResponseDto cartItemsResponseDto = buildCartItemsResponse(products, quantity, inventory.getAvailableQuantity());
 
             if (cartCategoryMap.containsKey(computeKey)) {
                 cartCategoryMap.get(computeKey).add(cartItemsResponseDto);

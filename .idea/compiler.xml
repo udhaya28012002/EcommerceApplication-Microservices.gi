@@ -14,6 +14,7 @@
         <module name="discount-service" />
         <module name="api-gateway" />
         <module name="order-service" />
+        <module name="notification-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -30,6 +31,7 @@
       <module name="discount-service" options="-parameters" />
       <module name="ecommerceapp" options="" />
       <module name="inventory-service" options="-parameters" />
+      <module name="notification-service" options="-parameters" />
       <module name="order-service" options="-parameters" />
       <module name="payment-service" options="-parameters" />
       <module name="products-service" options="-parameters" />

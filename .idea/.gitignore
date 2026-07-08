@@ -2,6 +2,9 @@
 target/
 **/target/
 
+.env
+**/.env
+
 # IntelliJ
 .idea/
 *.iml

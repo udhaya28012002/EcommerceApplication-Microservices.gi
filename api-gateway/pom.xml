@@ -2,7 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.webapp</groupId>
         <artifactId>ecommerce</artifactId>
@@ -22,7 +24,7 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
-                <version>2025.1.1</version>
+                <version>2025.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -41,14 +43,12 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- JWT API -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.12.6</version> <!-- or latest stable version -->
+            <version>0.12.6</version>
         </dependency>
 
-        <!-- JWT Implementation (Runtime only) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
@@ -56,7 +56,6 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- JWT Jackson for JSON processing (Runtime only) -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>

@@ -82,4 +82,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsernames(page, size));
     }
 
+    @GetMapping("/internal/getUserDetails/{username}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public ResponseEntity<?> getUserDetails(@PathVariable String username) {
+        log.info("Fetching User Details");
+
+        return ResponseEntity.ok(userService.getUserDetails(username));
+    }
+
 }

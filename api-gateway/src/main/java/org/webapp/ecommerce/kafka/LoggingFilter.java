@@ -1,4 +1,4 @@
-package org.webapp.ecommerce.config;
+package org.webapp.ecommerce.kafka;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

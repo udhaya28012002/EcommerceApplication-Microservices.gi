@@ -5,344 +5,61 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e44ae30f-0d6f-4fe6-aaad-35ef94cd80f6" name="Changes" comment="Updated the Project to containerize it.">
+      <change afterPath="$PROJECT_DIR$/notification-service/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/api-gateway-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/api-gateway-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/ApiGatewayApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/config/LoggingFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/util/JwtAuthFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/util/TokenValidator.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/cart-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/cart-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/CartServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/client/CartServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/controller/CartController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/request/AddToCartDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/CartCategoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/CartItemsResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/CartResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/CategoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/InitCartResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/InventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/ProductsResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/dto/response/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/entity/Cart.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/entity/CartItems.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/exception/CartEmptyException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/exception/InvalidCartException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/exception/ProductOutOfStockException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/repository/CartItemRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/repository/CartRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/service/CartOperationsService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/service/CartService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/apiConfig/CartAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/internalConfig/CartServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/DiscountServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/client/DiscountServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/controller/DiscountController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/AddDiscountDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/ApplyCouponResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/CouponDetailsRes.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/DisplayCouponsRes.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/UserDetailsResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/UserRegistrationTimeResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/entity/DiscountOnUsers.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/entity/DiscountType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/entity/GlobalDiscountOnProducts.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/exception/DiscountNotApplicable.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/exception/DuplicateDiscountException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/exception/NoCouponAvailable.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/repository/GlobalDiscountRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/repository/UserDiscountRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/service/DiscountService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/apiConfig/DiscountAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/internalConfig/DiscountServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/discount-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/discount-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/InventoryServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/controller/InventoryController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/dto/response/AllInventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/dto/response/InventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/dto/response/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/entity/Inventory.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/exception/InvalidInventoryException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/exception/InventoryNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/repository/InventoryRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/service/InventoryService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/apiConfig/InventoryAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/internalConfig/InventoryServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/inventory-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/inventory-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/OrderServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/client/OrderServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/controller/OrderController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/request/OrderItemRequestDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/request/PaymentRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/request/PlaceOrderRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/AdminOrdersResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/ApplyCouponResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/CartCategoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/CartItemsResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/CartResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/InventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/OrderItemsResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/OrdersResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/PaymentResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/ProductResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/dto/response/UserDetailsResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/entity/OrderItems.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/entity/OrderStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/entity/Orders.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/entity/PaymentMethodType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/entity/PaymentStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/OrderItemsNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/OrderNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/OrderProcessingException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/OrderStatusUpdateException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/ProductOutOfStockException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/repository/OrderRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/service/OrderRetryService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/service/OrderService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/apiConfig/OrderAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/internalConfig/OrderServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/order-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/target/order-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/PaymentServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/client/PaymentServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/controller/PaymentController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/PaymentRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/PaymentResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/WebhookResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/entity/Payment.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/entity/PaymentMethodType.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/entity/PaymentStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/exception/PaymentNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/exception/PaymentStatusTransitionException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/exception/UnknowPaymentStatusException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/helper/PaymentLifecycleManagement.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/repository/PaymentRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/service/PaymentService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/apiConfig/PaymentsAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/config/StripeConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/internalConfig/PaymentServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/payment-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/target/payment-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/ProductServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/client/ProductServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/controller/CategoryController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/controller/ProductController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/AdminProductResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/AllInventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/CategoryResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/InventoryResponseDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/ProductReqDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/ProductResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/entity/ProductCategory.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/entity/Products.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/entity/Stock.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/CategoryAlreadyExistsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/CategoryNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/NoProductFound.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/ProductOutOfStockException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/repository/ProductCategoryRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/repository/ProductRepository.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/service/CategoryService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/service/ProductService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/apiConfig/ProductsAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/internalConfig/ProductsServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/products-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/target/products-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/application-dev.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/application.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/UserServiceApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/controller/AuthController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/dto/AuthResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/dto/RefreshTokenInput.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/exception/CustomAccessDeniedHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/exception/CustomAuthenticationEntryPoint.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/exception/InvalidTokenException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/refreshtoken/entity/RefreshToken.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/refreshtoken/repository/RefreshTokenRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/auth/refreshtoken/service/RefreshTokenService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/client/UserServiceClient.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/controller/UserController.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/errorresponse/NestedErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/errorresponse/ServiceErrorResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/request/AddAddressReq.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/request/ChangeOtherDetailsReq.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/request/ChangePasswordRequest.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/request/LoginReqDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/request/UserCreationDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/InfoDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/InitCartResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/LoginResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/ServiceTokenClaims.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/UserDetailsResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/UserRegistrationTimeResponse.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/dto/response/UserResDto.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/entity/Address.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/entity/Users.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/enums/Role.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/enums/UserStatus.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/AddressNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/ContactNoAlreadyExistsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/EmailAlreadyExistsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/GlobalExceptionHandler.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/InvalidCredentialsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/PasswordMismatchException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/PasswordReuseException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/ResourceAlreadyExistsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/ResourceNotFoundException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/ServiceAuthException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/UserAccessDeniedException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/exception/UsernameAlreadyExistsException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/repository/UserRepo.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/service/RegistrationService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/service/UserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/CurrentUserService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/ServiceSecurityConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/UtilBeans.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/WebConfig.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/apiConfig/APITokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/apiConfig/UserAPITokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/internalConfig/UsersServiceTokenProvider.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/loadconfig/InitAllowedServicesProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/classes/org/webapp/ecommerce/util/loadconfig/TokenProperties.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/maven-archiver/pom.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/users-service-1.0-SNAPSHOT.jar" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/target/users-service-1.0-SNAPSHOT.jar.original" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/config/LoggingFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/kafka/LoggingFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/dto/response/InventoryResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/dto/response/InventoryResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/repository/CartItemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/repository/CartItemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartOperationsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartOperationsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cart-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/dto/UserDetailsResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/dto/UserDetailsResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/service/DiscountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/service/DiscountService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/discount-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/client/OrderServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/client/OrderServiceClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/controller/OrderController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderRetryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderRetryService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/order-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/products-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/products-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/products-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/resources/application-dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/auth/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/auth/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/dto/response/UserDetailsResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/dto/response/UserDetailsResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/repository/UserRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/repository/UserRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/resources/application-dev.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -353,8 +70,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Exception" />
-        <option value="Class" />
         <option value="Dockerfile" />
+        <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -411,11 +129,11 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Project/EcommerceApplication/api-gateway",
+    "last_opened_file_path": "D:/Project/EcommerceApplication/notification-service",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "vcs.Git"
+    "settings.editor.selected.configurable": "configurable.group.tools"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -423,25 +141,25 @@
       <recent name="org.webapp.ecommerce.exception" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Project\EcommerceApplication\notification-service" />
+      <recent name="D:\Project\EcommerceApplication\notification-service\src\main\resources" />
+      <recent name="D:\Project\EcommerceApplication\discount-service\src\main\java\org\webapp\ecommerce" />
       <recent name="D:\Project\EcommerceApplication\api-gateway" />
       <recent name="D:\Project\EcommerceApplication\cart-service" />
-      <recent name="D:\Project\EcommerceApplication\discount-service" />
-      <recent name="D:\Project\EcommerceApplication\inventory-service" />
-      <recent name="D:\Project\EcommerceApplication\order-service" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Project\EcommerceApplication\frontend" />
       <recent name="D:\Project\EcommerceApplication\products-service\src\main\java" />
       <recent name="D:\Project\EcommerceApplication\products-service\src\main\java\repository" />
       <recent name="D:\Project\EcommerceApplication\users-service\src\main\java\auth" />
       <recent name="D:\Project\EcommerceApplication\users-service\src\main\java" />
-      <recent name="D:\Project\EcommerceApplication\cart-service\src\main\java" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="org.webapp.ecommerce.entity" />
-      <recent name="org.webapp.ecommerce.dto.response" />
-      <recent name="org.webapp.ecommerce.exception" />
+      <recent name="org.webapp.ecommerce.dto.kafkadto" />
       <recent name="org.webapp.ecommerce.dto" />
-      <recent name="org.webapp.ecommerce.util" />
+      <recent name="org.webapp.ecommerce.dto.response" />
+      <recent name="org.webapp.ecommerce.dto.kafkaconsumer" />
+      <recent name="org.webapp.ecommerce.kafka" />
     </key>
   </component>
   <component name="RunManager">

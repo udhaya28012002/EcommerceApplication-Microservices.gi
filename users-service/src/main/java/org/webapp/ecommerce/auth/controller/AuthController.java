@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.webapp.ecommerce.dto.request.LoginReqDto;
 import org.webapp.ecommerce.dto.request.UserCreationDto;
 import org.webapp.ecommerce.dto.response.UserResDto;
+import org.webapp.ecommerce.kafka.KafkaService;
 import org.webapp.ecommerce.service.RegistrationService;
 import org.webapp.ecommerce.util.apiConfig.UserAPITokenProvider;
 
@@ -31,6 +32,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
     private final UserAPITokenProvider jwtUtil;
+
 
     public AuthController(RegistrationService registrationService, AuthenticationManager authenticationManager, RefreshTokenService refreshTokenService, UserAPITokenProvider jwtUtil) {
         this.registrationService = registrationService;
@@ -135,6 +137,8 @@ public class AuthController {
         log.info("Invoking Discount Service For assigning Welcome Coupon for user: {}", createdUser.getUserName());
 
         registrationService.assignWelcomeCoupon(userCreationInfo.getUserName(), "ROLE_CUSTOMER", createdUser.getCreatedAt());
+
+        registrationService.sendMessageToKafka(createdUser);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(authResDto);
 

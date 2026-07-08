@@ -1,5 +1,5 @@
 server:
-  port: 9095
+  port: ${PAYMENT_SERVICE_PORT}
 
 spring:
   datasource:
@@ -23,7 +23,7 @@ jwt:
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
-  webhook-secret-key : ${WEBHOOK_SECRET_KEY}
+  webhook-secret-key : ${STRIPE_WEBHOOK_SECRET}
 
 known-services:
   allowed-services:

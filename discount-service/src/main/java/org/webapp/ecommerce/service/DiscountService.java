@@ -6,15 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.webapp.ecommerce.client.DiscountServiceClient;
-import org.webapp.ecommerce.dto.AddDiscountDto;
-import org.webapp.ecommerce.dto.ApplyCouponResponse;
-import org.webapp.ecommerce.dto.CouponDetailsRes;
-import org.webapp.ecommerce.dto.DisplayCouponsRes;
+import org.webapp.ecommerce.dto.*;
+import org.webapp.ecommerce.dto.kafkadto.CouponAssignedEvent;
 import org.webapp.ecommerce.entity.DiscountOnUsers;
 import org.webapp.ecommerce.entity.DiscountType;
 import org.webapp.ecommerce.exception.DiscountNotApplicable;
 import org.webapp.ecommerce.exception.DuplicateDiscountException;
 import org.webapp.ecommerce.exception.NoCouponAvailable;
+import org.webapp.ecommerce.kafka.KafkaService;
 import org.webapp.ecommerce.repository.GlobalDiscountRepo;
 import org.webapp.ecommerce.repository.UserDiscountRepo;
 import org.webapp.ecommerce.util.CurrentUserService;
@@ -34,15 +33,17 @@ public class DiscountService {
     private final UserDiscountRepo userDiscountRepo;
     private final CurrentUserService currentUserService;
     private final DiscountServiceClient discountServiceClient;
+    private final KafkaService kafkaService;
 
     private final String NEW_USER_COUPON = "WelcomeGift";
     private final long NEW_USER_COUPON_VALUE = 100;
 
-    public DiscountService(GlobalDiscountRepo globalDiscountRepo, UserDiscountRepo userDiscountRepo, CurrentUserService currentUserService, DiscountServiceClient discountServiceClient) {
+    public DiscountService(GlobalDiscountRepo globalDiscountRepo, UserDiscountRepo userDiscountRepo, CurrentUserService currentUserService, DiscountServiceClient discountServiceClient, KafkaService kafkaService) {
         this.globalDiscountRepo = globalDiscountRepo;
         this.userDiscountRepo = userDiscountRepo;
         this.currentUserService = currentUserService;
         this.discountServiceClient = discountServiceClient;
+        this.kafkaService = kafkaService;
     }
 
     public void assignWelcomeCoupon(LocalDateTime registrationTime) {
@@ -84,7 +85,7 @@ public class DiscountService {
 
         log.debug("Assigning coupon to all users. CouponCode: {}", dto.getCouponCode());
 
-        List<String> allUsernames = discountServiceClient.getAllUsernames(loggedUser, role).getListOfUsernames();
+        Map<String, String> allUsernames = discountServiceClient.getAllUsernames(loggedUser, role).getListOfUsernames();
 
         List<String> existingUserIds = userDiscountRepo.findUsernamesByCouponCode(dto.getCouponCode());
 
@@ -92,7 +93,9 @@ public class DiscountService {
 
         LocalDate expiry = LocalDate.now().plusMonths(dto.getValidityInMonths());
 
-        for (String username : allUsernames) {
+        Map<String, String> couponAssignedUsers = new HashMap<>();
+
+        for (String username : allUsernames.keySet()) {
 
             if (existingUserIds.contains(username)) {
 
@@ -100,6 +103,8 @@ public class DiscountService {
 
                 continue;
             }
+
+            couponAssignedUsers.put(username, allUsernames.get(username));
 
             discountedUsers.add(createDiscount(
                     username,
@@ -114,6 +119,21 @@ public class DiscountService {
             ));
 
         }
+
+        CouponAssignedEvent couponAssignedDetails = new CouponAssignedEvent(
+                dto.getCouponCode(),
+                dto.getDescription(),
+                dto.getDiscountType().name(),
+                dto.getDiscountValue(),
+                dto.getMinAmtOrder(),
+                dto.getMaxDiscountAmount(),
+                expiry,
+                dto.getUsageLimit(),
+                couponAssignedUsers
+        );
+
+        //KAFKA INTEGRATION SERVICE
+        kafkaService.sendMessage(couponAssignedDetails, "coupon.assigned", "couponAssigned" );
 
         userDiscountRepo.saveAll(discountedUsers);
 
@@ -136,7 +156,7 @@ public class DiscountService {
 
         log.debug("Assigning coupon to eligible users. CouponCode: {}, FilterPrice: {}", addDiscountDto.getCouponCode(), filterPrice);
 
-        List<String> filteredUsers = discountServiceClient.filterUsernameByOrderAmt(filterPrice, loggedUser, role).getListOfUsernames();
+        Map<String, String> filteredUsers = discountServiceClient.filterUsernameByOrderAmt(filterPrice, loggedUser, role).getListOfUsernames();
 
         List<String> existingUserIds = userDiscountRepo.findUsernamesByCouponCode(addDiscountDto.getCouponCode());
 
@@ -144,13 +164,17 @@ public class DiscountService {
 
         LocalDate expiry = LocalDate.now().plusMonths(addDiscountDto.getValidityInMonths());
 
-        for (String username : filteredUsers) {
+        Map<String, String> couponAssignedUsers = new HashMap<>();
+
+        for (String username : filteredUsers.keySet()) {
 
             if (existingUserIds.contains(username)) {
 
                 log.warn("Coupon already assigned for user: {}", username);
                 continue;
             }
+
+            couponAssignedUsers.put(username, filteredUsers.get(username));
 
             DiscountOnUsers discountOnUsers = createDiscount(
                     loggedUser,
@@ -167,6 +191,21 @@ public class DiscountService {
             discountedUsers.add(discountOnUsers);
 
         }
+
+        CouponAssignedEvent couponAssignedDetails = new CouponAssignedEvent(
+                addDiscountDto.getCouponCode(),
+                addDiscountDto.getDescription(),
+                addDiscountDto.getDiscountType().name(),
+                addDiscountDto.getDiscountValue(),
+                addDiscountDto.getMinAmtOrder(),
+                addDiscountDto.getMaxDiscountAmount(),
+                expiry,
+                addDiscountDto.getUsageLimit(),
+                couponAssignedUsers
+        );
+
+        //KAFKA INTEGRATION SERVICE
+        kafkaService.sendMessage(couponAssignedDetails, "coupon.assigned", "couponAssigned" );
 
         userDiscountRepo.saveAll(discountedUsers);
 

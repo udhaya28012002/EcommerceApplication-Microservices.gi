@@ -41,10 +41,10 @@ public class UtilBeans {
         return registration;
     }
 
-    @Bean
+    /*@Bean
     public ObjectMapper objectMapper(){
         return new ObjectMapper();
-    }
+    }*/
 
     @Bean
     public PasswordEncoder passwordEncoder() {

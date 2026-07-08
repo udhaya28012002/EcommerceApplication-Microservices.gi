@@ -1,5 +1,5 @@
 server:
-  port: 9097
+  port: ${USERS_SERVICE_PORT}
 
 spring:
 
@@ -19,6 +19,12 @@ spring:
     properties:
       hibernate:
         format_sql: false
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 
 jwt:
   access-token-expiration: ${ACCESS_TOKEN_EXPIRATION}

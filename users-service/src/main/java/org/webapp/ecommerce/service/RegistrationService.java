@@ -5,12 +5,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.webapp.ecommerce.client.UserServiceClient;
+import org.webapp.ecommerce.dto.kafkadto.UserRegisterEvent;
 import org.webapp.ecommerce.dto.request.UserCreationDto;
 import org.webapp.ecommerce.dto.response.UserResDto;
 import org.webapp.ecommerce.entity.Users;
+import org.webapp.ecommerce.kafka.KafkaService;
 import org.webapp.ecommerce.util.internalConfig.UsersServiceTokenProvider;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class RegistrationService {
@@ -21,10 +24,13 @@ public class RegistrationService {
     private final UserServiceClient userServiceClient;
     private final UsersServiceTokenProvider usersServiceTokenProvider;
 
-    public RegistrationService(UserService userService, UserServiceClient userServiceClient, UsersServiceTokenProvider usersServiceTokenProvider) {
+    private final KafkaService kafkaService;
+
+    public RegistrationService(UserService userService, UserServiceClient userServiceClient, UsersServiceTokenProvider usersServiceTokenProvider, KafkaService kafkaService) {
         this.userService = userService;
         this.userServiceClient = userServiceClient;
         this.usersServiceTokenProvider = usersServiceTokenProvider;
+        this.kafkaService = kafkaService;
     }
 
     @Transactional
@@ -42,10 +48,37 @@ public class RegistrationService {
 
         log.info("Welcome coupon assigned to user: {}", user.getUserName());
 
-        return new UserResDto(user.getName(), user.getUserName(), user.getEmailId(), user.getEmailId(), user.getAddress(), user.getCreatedAt());
+        UserResDto userResDto = new UserResDto(user.getName(), user.getUserName(), user.getEmailId(), user.getEmailId(), user.getAddress(), user.getCreatedAt());
+
+        return userResDto;
     }
 
     public void assignWelcomeCoupon(String username, String role, LocalDateTime createdAt) {
         userServiceClient.assignWelcomeCoupon(usersServiceTokenProvider.generateServiceToken(username, role), createdAt);
+    }
+
+    public void sendMessageToKafka(UserResDto createdUser){
+
+        List<String> constructedAddress = createdUser.getAddress().stream()
+                .map(address ->
+                        address.getStreet() + ", " +
+                                address.getCity() + ", Pin-code: " +
+                                address.getPincode() + ", " +
+                                address.getState()
+                )
+                .toList();
+
+
+        UserRegisterEvent userRegisterEvent = new UserRegisterEvent(
+                createdUser.getName(),
+                createdUser.getUserName(),
+                createdUser.getEmailId(),
+                createdUser.getContactNo(),
+                constructedAddress,
+                createdUser.getCreatedAt()
+                );
+
+        //KAFKA INTEGRATION SERVICE
+        kafkaService.sendMessage(userRegisterEvent, "user.registered", "newUserRegistered");
     }
 }
