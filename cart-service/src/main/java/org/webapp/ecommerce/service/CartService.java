@@ -96,8 +96,8 @@ public class CartService {
         return cartResponseDto;
     }
 
-    public InitCartResponse initUserCart() {
-        return cartOpsService.initUserCart(currentUserService.getLoggedInUser());
+    public InitCartResponse getOrCreateCart() {
+        return cartOpsService.getOrCreateCart(currentUserService.getLoggedInUser());
     }
 
     public void deactivateCart(){

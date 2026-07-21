@@ -8,8 +8,6 @@ import com.stripe.net.Webhook;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
 import com.stripe.model.Refund;
-import com.stripe.model.Charge;
-import org.apache.catalina.webresources.ClasspathURLStreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,18 +16,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.webapp.ecommerce.client.PaymentServiceClient;
 import org.webapp.ecommerce.dto.PaymentRequest;
 import org.webapp.ecommerce.dto.PaymentResponse;
+import org.webapp.ecommerce.dto.kafkadto.RefundRequestedEvent;
 import org.webapp.ecommerce.entity.Payment;
 import org.webapp.ecommerce.entity.PaymentMethodType;
 import org.webapp.ecommerce.entity.PaymentStatus;
 import org.webapp.ecommerce.exception.PaymentNotFoundException;
 import org.webapp.ecommerce.exception.ServiceAuthException;
 import org.webapp.ecommerce.helper.PaymentLifecycleManagement;
+import org.webapp.ecommerce.kafka.KafkaProducer;
 import org.webapp.ecommerce.repository.PaymentRepository;
-import org.webapp.ecommerce.util.CurrentUserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+import static java.time.LocalDateTime.now;
 
 @Service
 public class PaymentService {
@@ -38,13 +39,16 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
 
+    private final KafkaProducer kafkaProducer;
+
     private final PaymentServiceClient paymentServiceClient;
 
     @Value("${stripe.webhook-secret-key}")
     private String webhookSecret;
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentServiceClient paymentServiceClient) {
+    public PaymentService(PaymentRepository paymentRepository, KafkaProducer kafkaProducer, PaymentServiceClient paymentServiceClient) {
         this.paymentRepository = paymentRepository;
+        this.kafkaProducer = kafkaProducer;
         this.paymentServiceClient = paymentServiceClient;
     }
 
@@ -209,7 +213,7 @@ public class PaymentService {
                         log.info("Transition validated.");
 
                         payment.setPaymentStatus(PaymentStatus.SUCCEEDED);
-                        payment.setProcessedAt(LocalDateTime.now());
+                        payment.setProcessedAt(now());
 
                         paymentRepository.saveAndFlush(payment);
 
@@ -264,7 +268,7 @@ public class PaymentService {
                             log.info("Transition validated.");
 
                             payment.setPaymentStatus(PaymentStatus.FAILED);
-                            payment.setProcessedAt(LocalDateTime.now());
+                            payment.setProcessedAt(now());
 
                             paymentRepository.saveAndFlush(payment);
 
@@ -316,6 +320,22 @@ public class PaymentService {
                         paymentRepository.saveAndFlush(payment);
 
                         log.info("REFUND_COMPLETED for intentId={}", paymentIntentId);
+
+                        kafkaProducer.sendMessage(
+                                new RefundRequestedEvent(
+                                        UUID.randomUUID().toString(),
+                                        payment.getOrderId(),
+                                        payment.getId(),
+                                        payment.getStripePaymentIntentId(),
+                                        payment.getAmount(),
+                                        payment.getCurrency(),
+                                        payment.getUserId(),
+                                        "Refund Completed",
+                                        now()
+                                ),
+                                "refund.completed",
+                                payment.getOrderId()
+                        );
 
                     } catch (Exception ex) {
                         log.error("FAILED TO UPDATE REFUND STATUS for intentId={}", paymentIntentId, ex);

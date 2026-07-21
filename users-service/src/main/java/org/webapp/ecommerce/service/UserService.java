@@ -335,7 +335,7 @@ public class UserService implements UserDetailsService {
     }
 
     private boolean isPasswordMismatch(String password, String confirmPassword) {
-        return !password.equalsIgnoreCase(confirmPassword);
+        return !password.equals(confirmPassword);
     }
 
     private boolean validatePassword(Users user, String givenPassword) {

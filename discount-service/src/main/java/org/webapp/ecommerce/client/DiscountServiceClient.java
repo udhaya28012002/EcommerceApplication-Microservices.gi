@@ -69,6 +69,9 @@ public class DiscountServiceClient {
 
     public UserDetailsResponse getAllUsernames(String username, String role){
 
+        logger.debug("Calling Users-Service to fetch all users details");
+        logger.debug("Requested by {} : Role: {}", username, role);
+
         String url = usersServiceUrl + "/internal/getAllUsernames";
 
         HttpHeaders headers = new HttpHeaders();
@@ -103,6 +106,8 @@ public class DiscountServiceClient {
     }
 
     public UserDetailsResponse filterUsernameByOrderAmt(double filterAmt, String username, String role){
+
+        logger.debug("Calling Order-Service to filter the user by order amount");
 
         String url = orderServiceUrl + "/internal/filterUsernameByOrderAmt/" + filterAmt;
 

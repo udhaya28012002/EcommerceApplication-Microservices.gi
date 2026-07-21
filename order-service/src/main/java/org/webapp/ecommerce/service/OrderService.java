@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.webapp.ecommerce.client.OrderServiceClient;
 import org.webapp.ecommerce.dto.kafkadto.OrderEvent;
+import org.webapp.ecommerce.dto.kafkadto.RefundRequestedEvent;
 import org.webapp.ecommerce.dto.request.OrderItemRequestDto;
 import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
 import org.webapp.ecommerce.dto.response.*;
@@ -26,13 +27,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import static java.time.LocalDateTime.now;
+
 @Service
 public class OrderService {
 
     private final OrderRepository orderServiceRepository;
     private final CurrentUserService currentUserService;
     private final OrderServiceClient orderServiceClient;
-
+    private final OrderStatusService orderStatusService;
     private final KafkaService kafkaService;
 
     @Value("${payment.currencyCode}")
@@ -40,125 +43,15 @@ public class OrderService {
 
     private static final int DEFAULT_DISCOUNT = 0;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
     private final Logger log = LoggerFactory.getLogger(OrderService.class);
 
-    public static final Map<OrderStatus, Set<OrderStatus>> VALID_STATUS_TRANSITIONS =
-            Map.of(
-                    OrderStatus.CREATED,
-                    Set.of(OrderStatus.PENDING, OrderStatus.CANCELLED),
-
-                    OrderStatus.PENDING,
-                    Set.of(OrderStatus.CONFIRMED, OrderStatus.CANCELLED),
-
-                    OrderStatus.CONFIRMED,
-                    Set.of(OrderStatus.PROCESSING, OrderStatus.CANCELLED),
-
-                    OrderStatus.PROCESSING,
-                    Set.of(OrderStatus.SHIPPED, OrderStatus.CANCELLED),
-
-                    OrderStatus.SHIPPED,
-                    Set.of(OrderStatus.OUT_OF_DELIVERY),
-
-                    OrderStatus.OUT_OF_DELIVERY,
-                    Set.of(OrderStatus.DELIVERED),
-
-                    OrderStatus.DELIVERED,
-                    Set.of(),
-
-                    OrderStatus.CANCELLED,
-                    Set.of(),
-
-                    OrderStatus.FAILED,
-                    Set.of()
-            );
-
-    public OrderService(OrderRepository orderServiceRepository, CurrentUserService currentUserService, OrderServiceClient orderServiceClient, KafkaService kafkaService) {
+    public OrderService(OrderRepository orderServiceRepository, CurrentUserService currentUserService, OrderServiceClient orderServiceClient, OrderStatusService orderStatusService, KafkaService kafkaService) {
         this.orderServiceRepository = orderServiceRepository;
         this.currentUserService = currentUserService;
         this.orderServiceClient = orderServiceClient;
+        this.orderStatusService = orderStatusService;
         this.kafkaService = kafkaService;
     }
-
-    /*@Transactional
-    public OrdersResDto placeOrder(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
-
-        int discount = 0;
-
-        double deliveryCharge = 0;
-
-        String loggedUser = currentUserService.getLoggedInUser();
-        String role = currentUserService.getLoggedInUserRole();
-
-        log.debug("Order placement started for user: {}", loggedUser);
-
-        if (placeOrderRequest.getItems() == null || placeOrderRequest.getItems().isEmpty()) {
-
-            log.warn("Order items missing for user: {}", loggedUser);
-
-            throw new OrderItemsNotFoundException("Order info is missing");
-        }
-
-        LocalDateTime today = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-
-        Orders order = new Orders();
-        order.setOrderDate(today);
-        order.setUsername(loggedUser);
-        order.setOrderNumber("ORD-" + today.format(formatter));
-
-        log.info("Generated order number: {}", order.getOrderNumber());
-
-        List<OrderItems> orderItemsList = buildOrderItems(loggedUser, placeOrderRequest, order, discount, deliveryCharge, role);
-
-        double totalPricePerOrder = orderItemsList.stream()
-                .mapToDouble(OrderItems::getTotalPrice)
-                .sum();
-
-        log.info("Total order price before discount: {}", totalPricePerOrder);
-
-        ApplyCouponResponse applyCouponResponse = orderServiceClient.checkCouponsAndRedeem(loggedUser, placeOrderRequest.getCouponCode(), totalPricePerOrder, role);// Need to Invoke From Discount Service:
-
-        Long finalPrice = applyCouponResponse.getFinalPrice();
-        order.setFinalPrice(finalPrice);
-
-        order.setAppliedCoupon(applyCouponResponse.getCouponName());
-
-        order.setOrderItemsList(orderItemsList);
-
-        log.info("Final order price after discount: {}", finalPrice);
-
-        // PAYMENT PAGE (IF SUCCESS WE NEED TO PLACE ORDER OTHERWISE REVERT),
-
-        //Creating Payment Intent:
-        String paymentId = orderServiceClient.initiatePaymentIntent(
-                order.getOrderNumber(),
-                loggedUser,
-                role,
-                finalPrice,
-                currencyCode
-        );
-
-        //Confirming Payment Intent:
-        PaymentResponse paymentResponse = orderServiceClient.confirmPaymentProcess(loggedUser, role, paymentId);
-
-
-        updatingStocks(loggedUser, orderItemsList, role);
-
-        log.info("Inventory updated successfully for order: {}", order.getOrderNumber());
-
-        order.setOrderStatus(OrderStatus.CONFIRMED);
-
-        Orders savedOrder = orderServiceRepository.save(order);
-
-        if (savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
-            log.info("Order confirmed successfully for user: {}. OrderId: {}", loggedUser, savedOrder.getOrderId());
-        }
-
-        return buildOrderResDto(savedOrder);
-    }*/
 
     @Transactional
     public OrderEvent placeOrderReq(PlaceOrderRequest placeOrderRequest) throws OrderItemsNotFoundException {
@@ -179,13 +72,13 @@ public class OrderService {
             throw new OrderItemsNotFoundException("Order info is missing");
         }
 
-        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime today = now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
         Orders order = new Orders();
         order.setOrderDate(today);
         order.setUsername(loggedUser);
-        order.setOrderNumber("ORD-" + today.format(formatter));
+        order.setOrderNumber("ORD-" + today.format(formatter) + (UUID.randomUUID().toString().substring(7).replace("-", "")));
 
         log.info("Generated order number: {}", order.getOrderNumber());
 
@@ -208,7 +101,7 @@ public class OrderService {
 
         log.info("Final order price after discount: {}", finalPrice);
 
-        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser);
 
         // PAYMENT PAGE (IF SUCCESS WE NEED TO PLACE ORDER OTHERWISE REVERT),
 
@@ -236,24 +129,13 @@ public class OrderService {
 
         log.debug("Payment Id : {} is on status : {} and waiting for the payment to be succeeded", paymentResponse2.getPaymentId(), paymentResponse2.getStatus());
 
-        OrderEvent orderEvent = new OrderEvent(
-                userDetailsDtoResponse.getName(),
-                userDetailsDtoResponse.getEmailId(),
-                userDetailsDtoResponse.getContactNo(),
-                order.getUsername(),
-                paymentResponse2.getOrderId(),
-                order.getOrderStatus().name(),
-                paymentResponse2.getStatus().name(),
-                paymentResponse2.getPaymentId(),
-                paymentResponse2.getStripePaymentIntentId(),
-                paymentResponse2.getAmount()
-        );
+        OrderEvent orderEvent = buildOrderEvent(order, paymentResponse2, userDetailsDtoResponse);
 
         //SENDING TO KAFKA TOPIC AS A PRODUCER
         kafkaService.sendMessage(
                 orderEvent,
                 "order.created",
-                "orderCreated"
+                order.getOrderNumber()
         );
 
         return orderEvent;
@@ -261,9 +143,6 @@ public class OrderService {
 
     @Transactional
     public OrderEvent confirmOrder(PaymentResponse paymentResponse) {
-
-        String loggedUser = currentUserService.getLoggedInUser();
-        String role = currentUserService.getLoggedInUserRole();
 
         Orders order = orderServiceRepository.findByOrderNumber(paymentResponse.getOrderId());
 
@@ -275,123 +154,137 @@ public class OrderService {
             throw new OrderProcessingException("Payment does not belong to this order.");
         }
 
-        if (!(paymentResponse.getAmount() == order.getFinalPrice())) {
+        if (Double.compare(paymentResponse.getAmount(), order.getFinalPrice()) != 0){
             throw new OrderProcessingException("Payment does not belong to this order.");
         }
 
-        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
-
-        //SENDING TO KAFKA TOPIC AS A PRODUCER
-        kafkaService.sendMessage(
-                new OrderEvent(
-                        userDetailsDtoResponse.getName(),
-                        userDetailsDtoResponse.getEmailId(),
-                        userDetailsDtoResponse.getContactNo(),
-                        order.getUsername(),
-                        paymentResponse.getOrderId(),
-                        order.getOrderStatus().name(),
-                        paymentResponse.getStatus().name(),
-                        paymentResponse.getPaymentId(),
-                        paymentResponse.getStripePaymentIntentId(),
-                        paymentResponse.getAmount()
-                ),
-                "order.confirmed",
-                "orderConfirmed"
-        );
+        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(order.getUsername());
 
         // ── Idempotency guard — protects against Stripe webhook retries ─────────
-        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
-            log.warn("Order already confirmed — ignoring duplicate confirmation. OrderNumber: {}",
-                    order.getOrderNumber());
 
-            return new OrderEvent(
-                    userDetailsDtoResponse.getName(),
-                    userDetailsDtoResponse.getEmailId(),
-                    userDetailsDtoResponse.getContactNo(),
-                    order.getUsername(),
-                    paymentResponse.getOrderId(),
-                    order.getOrderStatus().name(),
-                    paymentResponse.getStatus().name(),
-                    paymentResponse.getPaymentId(),
-                    paymentResponse.getStripePaymentIntentId(),
-                    paymentResponse.getAmount()
-            );
+        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
+            log.warn("Duplicate payment confirmation ignored. Order={}", order.getOrderNumber());
+
+            return buildOrderEvent(order, paymentResponse, userDetailsDtoResponse);
         }
 
         if (order.getOrderStatus() == OrderStatus.FAILED) {
-            log.warn("Order already marked FAILED — ignoring late confirmation. OrderNumber: {}",
-                    order.getOrderNumber());
+            log.warn("Late payment confirmation ignored. Order={}", order.getOrderNumber());
 
-            return new OrderEvent(
-                    userDetailsDtoResponse.getName(),
-                    userDetailsDtoResponse.getEmailId(),
-                    userDetailsDtoResponse.getContactNo(),
-                    order.getUsername(),
-                    paymentResponse.getOrderId(),
-                    order.getOrderStatus().name(),
-                    paymentResponse.getStatus().name(),
-                    paymentResponse.getPaymentId(),
-                    paymentResponse.getStripePaymentIntentId(),
-                    paymentResponse.getAmount()
-            );
+            return buildOrderEvent(order, paymentResponse, userDetailsDtoResponse);
         }
 
-        List<OrderItems> orderItemsList = order.getOrderItemsList();
-
+        // ---------------- Payment Failed ----------------
 
         if (paymentResponse.getStatus() != PaymentStatus.SUCCEEDED) {
-            markOrderAsFailed(order.getOrderNumber());
-            throw new OrderProcessingException("Payment Failed");
+
+            log.info("Payment failed for order {}", order.getOrderNumber());
+
+            orderStatusService.markOrderAsFailed(order.getOrderNumber());
+
+            OrderEvent event = buildOrderEvent(order, paymentResponse, userDetailsDtoResponse);
+            event.setOrderStatus(OrderStatus.FAILED.name());
+            event.setReason("PAYMENT_FAILED");
+
+            kafkaService.sendMessage(
+                    event,
+                    "order.failed",
+                    order.getOrderNumber()
+            );
+
+            return event;
         }
+
+        // ---------------- Inventory ----------------
 
         try {
-            updatingStocks(order.getUsername(), orderItemsList, "ROLE_CUSTOMER");
-            log.info("Inventory updated successfully for order: {}", paymentResponse.getOrderId());
 
-        } catch (Exception ex) {
-            // Inventory call failed — don't silently roll back order status with it.
-            // Mark order as FAILED in its own transaction so the DB reflects reality,
-            // then surface the error so the caller knows something went wrong.
-            log.error("Inventory update failed for order: {}. Reason: {}",
-                    paymentResponse.getOrderId(), ex.getMessage());
-            markOrderAsFailed(order.getOrderNumber());
-            throw new OrderProcessingException(
-                    "Order confirmation failed during inventory update: " + ex.getMessage());
+            updatingStocks(
+                    order.getUsername(),
+                    order.getOrderItemsList(),
+                    "ROLE_CUSTOMER",
+                    order.getOrderNumber()
+            );
+
+            log.info("Inventory updated successfully for order {}", order.getOrderNumber());
+
+        } catch (InventoryUpdateFailedException ex) {
+
+            log.warn("Inventory update failed for order {} : {}",
+                    order.getOrderNumber(),
+                    ex.getMessage());
+
+            orderStatusService.markOrderAsFailed(order.getOrderNumber());
+
+            OrderEvent event = buildOrderEvent(order, paymentResponse, userDetailsDtoResponse);
+            event.setOrderStatus(OrderStatus.FAILED.name());
+            event.setReason("OUT_OF_STOCK_REFUND_INITIATED");
+
+            RefundRequestedEvent refundEvent = new RefundRequestedEvent(
+                    UUID.randomUUID().toString(),
+                    order.getOrderNumber(),
+                    paymentResponse.getPaymentId(),
+                    paymentResponse.getStripePaymentIntentId(),
+                    paymentResponse.getAmount(),
+                    paymentResponse.getCurrency(),
+                    order.getUsername(),
+                    "OUT_OF_STOCK",
+                    LocalDateTime.now());
+
+
+            kafkaService.sendMessage(
+                    refundEvent,
+                    "payment.refund",
+                    refundEvent.getOrderNumber()
+            );
+
+            kafkaService.sendMessage(
+                    event,
+                    "order.failed",
+                    order.getOrderNumber()
+            );
+
+            return event;
         }
+
+        // ---------------- Success ----------------
 
         order.setOrderStatus(OrderStatus.CONFIRMED);
 
         Orders savedOrder = orderServiceRepository.save(order);
 
-        if (savedOrder.getOrderStatus().equals(OrderStatus.CONFIRMED)) {
-            log.info("Order confirmed successfully for user: {}. OrderId: {}",
-                    order.getUsername(), savedOrder.getOrderId());
-        }
+        log.info("Order confirmed successfully. Order={}, User={}",
+                savedOrder.getOrderNumber(),
+                savedOrder.getUsername());
+
+        OrderEvent confirmedEvent =
+                buildOrderEvent(savedOrder, paymentResponse, userDetailsDtoResponse);
+
+        kafkaService.sendMessage(
+                confirmedEvent,
+                "order.confirmed",
+                savedOrder.getOrderNumber()
+        );
+
+        return confirmedEvent;
+    }
+
+    private OrderEvent buildOrderEvent(Orders order, PaymentResponse payment, UserDetailsDtoResponse user) {
 
         return new OrderEvent(
-                userDetailsDtoResponse.getName(),
-                userDetailsDtoResponse.getEmailId(),
-                userDetailsDtoResponse.getContactNo(),
+                user.getName(),
+                user.getEmailId(),
+                user.getContactNo(),
                 order.getUsername(),
-                paymentResponse.getOrderId(),
+                payment.getOrderId(),
                 order.getOrderStatus().name(),
-                paymentResponse.getStatus().name(),
-                paymentResponse.getPaymentId(),
-                paymentResponse.getStripePaymentIntentId(),
-                paymentResponse.getAmount()
+                payment.getStatus().name(),
+                payment.getPaymentId(),
+                payment.getStripePaymentIntentId(),
+                payment.getAmount()
         );
     }
 
-    // Runs in its OWN transaction — commits even if the caller's transaction later rolls back
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markOrderAsFailed(String orderNumber) {
-        Orders order = orderServiceRepository.findByOrderNumber(orderNumber);
-        if (order != null && order.getOrderStatus() != OrderStatus.FAILED) {
-            order.setOrderStatus(OrderStatus.FAILED);
-            orderServiceRepository.save(order);
-            log.info("Order marked as FAILED. OrderNumber: {}", orderNumber);
-        }
-    }
 
     public void checkOut() {
 
@@ -557,70 +450,6 @@ public class OrderService {
                 .toList();
     }
 
-    @Transactional
-    private void updateOrderStatus(String orderNumber, OrderStatus newOrderStatus, String topic, String key) {
-
-        String loggedUser = currentUserService.getLoggedInUser();
-        String role = currentUserService.getLoggedInUserRole();
-
-        log.debug("Updating order status. OrderNumber: {}, NewStatus: {}", orderNumber, newOrderStatus);
-
-        Orders orders = getOrder(orderNumber);
-
-        validateOrderStatusUpdate(orders.getOrderStatus(), newOrderStatus);
-
-        orders.setOrderStatus(newOrderStatus);
-        orderServiceRepository.save(orders);
-
-        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
-
-        //SENDING TO KAFKA TOPIC AS A PRODUCER
-        kafkaService.sendMessage(
-                new OrderEvent(
-                        userDetailsDtoResponse.getName(),
-                        userDetailsDtoResponse.getEmailId(),
-                        userDetailsDtoResponse.getContactNo(),
-                        orders.getUsername(),
-                        orderNumber,
-                        orders.getOrderStatus().name(),
-                        (long) orders.getFinalPrice()
-                ),
-                topic,
-                key
-        );
-
-        log.info("Order status updated successfully. OrderNumber: {}, Status: {}", orderNumber, newOrderStatus);
-    }
-
-    public String markOrderAsPending(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.PENDING, "order.pending", "orderPending");
-        return "Status Changed";
-    }
-
-    public String markOrderAsConfirmed(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.CONFIRMED, "order.confirmed", "orderConfirmed");
-        return "Status Changed";
-    }
-
-    public String markOrderAsProcessing(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.PROCESSING, "order.processing", "orderProcessing");
-        return "Status Changed";
-    }
-
-    public String markAsShipped(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.SHIPPED, "order.shipped", "orderShipped");
-        return "Status Changed";
-    }
-
-    public String markOrderAsOutForDelivery(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.OUT_OF_DELIVERY, "order.outOfDelivery", "orderOutForDelivery");
-        return "Status Changed";
-    }
-
-    public String markOrderAsDelivered(String orderNumber) {
-        updateOrderStatus(orderNumber, OrderStatus.DELIVERED, "order.delivered", "orderDelivered");
-        return "Status Changed";
-    }
 
     public List<String> filterUsernamesByOrderAmt(double orderAmt) {
         return orderServiceRepository.findUsernamesByFilterPrice(orderAmt);
@@ -636,51 +465,77 @@ public class OrderService {
 
         Orders orders = getOrder(orderNumber);
 
-        validateOrderStatusUpdate(orders.getOrderStatus(), OrderStatus.CANCELLED);
+        orderStatusService.validateOrderStatusUpdate(orders.getOrderStatus(), OrderStatus.CANCELLED);
 
         // Reversible local-system actions first
         revertInventory(orders);
 
         log.info("Inventory reverted successfully for cancelled order: {}", orderNumber);
 
-        if (!orders.getAppliedCoupon().equalsIgnoreCase("No Coupon is used")) {
-            String message = orderServiceClient.revertCoupon(loggedUser, orders.getAppliedCoupon(), role);
+        // Revert coupon (if applicable)
+        if (!"No Coupon is used".equalsIgnoreCase(orders.getAppliedCoupon())) {
+
+            String message = orderServiceClient.revertCoupon(
+                    loggedUser,
+                    orders.getAppliedCoupon(),
+                    role
+            );
+
             log.info("{} for cancelled order: {}", message, orderNumber);
 
         } else {
-            log.info("No coupon used for this order : {}", orderNumber);
+
+            log.info("No coupon applied for order {}", orderNumber);
         }
 
-        // Irreversible external action LAST — only after everything else succeeded
-        PaymentResponse paymentResponse = orderServiceClient.initiateRefund(
-                loggedUser, role, orders.getStripePaymentIntentId());
-
-        log.info("Refund initiated for order: {}. PaymentStatus: {}", orderNumber, paymentResponse.getStatus());
-
-        // Commit the status change last, atomically with the rest of this transaction
+        // Update order status
         orders.setOrderStatus(OrderStatus.CANCELLED);
-        orderServiceRepository.save(orders);
 
-        log.info("Order cancelled successfully. OrderNumber: {}", orderNumber);
+        Orders savedOrder = orderServiceRepository.save(orders);
 
-        UserDetailsDtoResponse userDetailsDtoResponse = orderServiceClient.getUserDetails(loggedUser, role);
+        log.info("Order cancelled successfully. OrderNumber={}",
+                savedOrder.getOrderNumber());
 
-        //SENDING TO KAFKA TOPIC AS A PRODUCER
+        UserDetailsDtoResponse user =
+                orderServiceClient.getUserDetails(loggedUser);
+
+        // Publish refund request
+        RefundRequestedEvent refundEvent = new RefundRequestedEvent(
+                UUID.randomUUID().toString(),
+                savedOrder.getOrderNumber(),
+                null, // paymentId (optional)
+                savedOrder.getStripePaymentIntentId(),
+                savedOrder.getFinalPrice(),
+                currencyCode,
+                savedOrder.getUsername(),
+                "ORDER_CANCELLED",
+                LocalDateTime.now()
+        );
+
         kafkaService.sendMessage(
-                new OrderEvent(
-                        userDetailsDtoResponse.getName(),
-                        userDetailsDtoResponse.getEmailId(),
-                        userDetailsDtoResponse.getContactNo(),
-                        orders.getUsername(),
-                        paymentResponse.getOrderId(),
-                        orders.getOrderStatus().name(),
-                        paymentResponse.getStatus().name(),
-                        paymentResponse.getPaymentId(),
-                        paymentResponse.getStripePaymentIntentId(),
-                        paymentResponse.getAmount()
-                ),
+                refundEvent,
+                "payment.refund",
+                savedOrder.getOrderNumber()
+        );
+
+        // Step 5 - Publish cancellation event
+
+        OrderEvent cancelledEvent = new OrderEvent(
+                user.getName(),
+                user.getEmailId(),
+                user.getContactNo(),
+                user.getUserName(),
+                savedOrder.getOrderNumber(),
+                savedOrder.getOrderStatus().name(),
+                (long) savedOrder.getFinalPrice()
+        );
+
+        cancelledEvent.setReason("ORDER_CANCELLED");
+
+        kafkaService.sendMessage(
+                cancelledEvent,
                 "order.cancelled",
-                "orderCancelled"
+                savedOrder.getOrderNumber()
         );
 
         return "Order Cancelled Successfully";
@@ -715,7 +570,7 @@ public class OrderService {
         }
     }
 
-    private Orders getOrder(String orderNumber) {
+    protected Orders getOrder(String orderNumber) {
         Orders orders = orderServiceRepository.findByOrderNumber(orderNumber);
 
         if (orders == null) {
@@ -728,26 +583,6 @@ public class OrderService {
         return orders;
     }
 
-    private void validateOrderStatusUpdate(OrderStatus prevOrderStatus,
-                                           OrderStatus newOrderStatus) {
-
-        // Prevent same status update
-        if (prevOrderStatus == newOrderStatus) {
-
-            log.warn("Duplicate order status update attempted. Status: {}", newOrderStatus);
-
-            throw new OrderStatusUpdateException("Order is already in " + newOrderStatus + " status");
-        }
-
-        Set<OrderStatus> allowedStatuses = VALID_STATUS_TRANSITIONS.getOrDefault(prevOrderStatus, Collections.emptySet());
-
-        if (!allowedStatuses.contains(newOrderStatus)) {
-
-            log.warn("Invalid order status transition attempted. From: {}, To: {}", prevOrderStatus, newOrderStatus);
-
-            throw new OrderStatusUpdateException("Invalid status transition from " + prevOrderStatus + " to " + newOrderStatus);
-        }
-    }
 
     private OrdersResDto buildOrderResDto(Orders savedOrder) {
         OrdersResDto ordersResDto = new OrdersResDto();
@@ -794,7 +629,8 @@ public class OrderService {
         return ordersResDto;
     }
 
-    public void updatingStocks(String username, List<OrderItems> orderItemsList, String role) {
+    @Transactional
+    public void updatingStocks(String username, List<OrderItems> orderItemsList, String role, String orderNumber) throws InventoryUpdateFailedException {
 
         Map<Long, Integer> inventoryUpdate = new HashMap<>();
 
@@ -802,7 +638,17 @@ public class OrderService {
             inventoryUpdate.put(orderItems.getProductId(), orderItems.getQuantity());
         }
 
+
         orderServiceClient.updateInventory(username, inventoryUpdate, role);
+
+
+    }
+
+    public void initiatingRefundOnFailedOrders(String orderNumber, String username, String role, String paymentIntent) {
+
+        log.info("Initiating Re-fund for the failed order : {}", orderNumber);
+        orderServiceClient.initiateRefund(username, role, paymentIntent);
+
     }
 
     private List<OrderItems> buildOrderItems(String username, PlaceOrderRequest placeOrderRequest, Orders order, int discount, double deliveryCharge, String role) throws ProductOutOfStockException {

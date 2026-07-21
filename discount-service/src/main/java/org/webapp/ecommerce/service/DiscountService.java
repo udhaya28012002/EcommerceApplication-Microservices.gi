@@ -46,20 +46,22 @@ public class DiscountService {
         this.kafkaService = kafkaService;
     }
 
+    @Transactional
     public void assignWelcomeCoupon(LocalDateTime registrationTime) {
 
         String loggedUser = currentUserService.getLoggedInUser();
-        String role = currentUserService.getLoggedInUserRole();
 
         log.debug("Assigning welcome coupon for user: {}", loggedUser);
 
         //Need to get the User Details for Assigning the Coupons:
 
-        if (registrationTime.isBefore(LocalDateTime.now().minusDays(1))) {
+        LocalDateTime now = LocalDateTime.now();
 
-            log.warn("Welcome coupon not applicable for user: {}", loggedUser);
+        if (registrationTime.isBefore(now.minusDays(1))) {
 
-            throw new DiscountNotApplicable("Welcome Gift is only new users.");
+            log.warn("Welcome coupon not applicable. User '{}' registered before the eligibility period.", loggedUser);
+
+            throw new DiscountNotApplicable("Welcome coupon is available only for newly registered users.");
         }
 
         if (userDiscountRepo.existsByUsernameAndCouponCode(loggedUser, NEW_USER_COUPON)) {
@@ -69,12 +71,14 @@ public class DiscountService {
             throw new DuplicateDiscountException("Discount already exists for this User");
         }
 
-        DiscountOnUsers discountOnUsers = createDiscount(loggedUser, NEW_USER_COUPON, "Welcome Gift", DiscountType.FLAT, NEW_USER_COUPON_VALUE, 200, 100, 1, LocalDate.now().plusMonths(6));
-
-        userDiscountRepo.save(discountOnUsers);
+        userDiscountRepo.save(createDiscount(loggedUser, NEW_USER_COUPON, "Welcome Gift", DiscountType.FLAT, NEW_USER_COUPON_VALUE, 200, 100, 1, LocalDate.from(now.plusMonths(6))));
 
         log.info("Welcome coupon assigned successfully for user: {}", loggedUser);
 
+    }
+
+    public void assignDiscountToCustomers() {
+        //Need to enhance this with the RABBITMQ to make the task to happen later and ack the user immediately for better users experience.
     }
 
     @Transactional
@@ -83,11 +87,13 @@ public class DiscountService {
         String loggedUser = currentUserService.getLoggedInUser();
         String role = currentUserService.getLoggedInUserRole();
 
-        log.debug("Assigning coupon to all users. CouponCode: {}", dto.getCouponCode());
+        String couponCode = dto.getCouponCode();
+
+        log.debug("Assigning coupon to all users. CouponCode: {}", couponCode);
 
         Map<String, String> allUsernames = discountServiceClient.getAllUsernames(loggedUser, role).getListOfUsernames();
 
-        List<String> existingUserIds = userDiscountRepo.findUsernamesByCouponCode(dto.getCouponCode());
+        Set<String> existingUserIds = new HashSet<>(userDiscountRepo.findUsernamesByCouponCode(couponCode));
 
         List<DiscountOnUsers> discountedUsers = new ArrayList<>();
 
@@ -95,7 +101,10 @@ public class DiscountService {
 
         Map<String, String> couponAssignedUsers = new HashMap<>();
 
-        for (String username : allUsernames.keySet()) {
+        for (Map.Entry<String, String> user : allUsernames.entrySet()) {
+
+            String username = user.getKey();
+            String email = user.getValue();
 
             if (existingUserIds.contains(username)) {
 
@@ -104,11 +113,11 @@ public class DiscountService {
                 continue;
             }
 
-            couponAssignedUsers.put(username, allUsernames.get(username));
+            couponAssignedUsers.put(username, email);
 
             discountedUsers.add(createDiscount(
                     username,
-                    dto.getCouponCode(),
+                    couponCode,
                     dto.getDescription(),
                     dto.getDiscountType(),
                     dto.getDiscountValue(),
@@ -120,8 +129,101 @@ public class DiscountService {
 
         }
 
+        if (discountedUsers.isEmpty()) {
+            log.info("Coupon '{}' was not assigned because every eligible user already has it.", couponCode);
+            return false;
+        }
+
         CouponAssignedEvent couponAssignedDetails = new CouponAssignedEvent(
-                dto.getCouponCode(),
+                couponCode,
+                dto.getDescription(),
+                dto.getDiscountType().name(),
+                dto.getDiscountValue(),
+                dto.getMinAmtOrder(),
+                dto.getMaxDiscountAmount(),
+                expiry,
+                dto.getUsageLimit(),
+                couponAssignedUsers
+        );
+
+        // Save to database first
+        userDiscountRepo.saveAll(discountedUsers);
+
+        //KAFKA INTEGRATION SERVICE
+        kafkaService.sendMessage(
+                couponAssignedDetails,
+                "coupon.assigned",
+                couponCode
+        );
+
+        log.info(
+                "Coupon '{}' assigned successfully to {} users.",
+                couponCode,
+                discountedUsers.size()
+        );
+
+        return true;
+
+    }
+
+    @Transactional
+    public void assignDiscountToEligibleUsers(AddDiscountDto dto, double filterPrice) {
+
+        String loggedUser = currentUserService.getLoggedInUser();
+        String role = currentUserService.getLoggedInUserRole();
+
+        String couponCode = dto.getCouponCode();
+
+        log.debug("Assigning coupon to eligible users. CouponCode: {}, FilterPrice: {}", couponCode, filterPrice);
+
+        Map<String, String> filteredUsers = discountServiceClient.filterUsernameByOrderAmt(filterPrice, loggedUser, role).getListOfUsernames();
+
+        Set<String> existingUserIds = new HashSet<>(userDiscountRepo.findUsernamesByCouponCode(couponCode));
+
+        List<DiscountOnUsers> discountedUsers = new ArrayList<>();
+
+        LocalDate expiry = LocalDate.now().plusMonths(dto.getValidityInMonths());
+
+        Map<String, String> couponAssignedUsers = new HashMap<>();
+
+        for (Map.Entry<String, String> user : filteredUsers.entrySet()) {
+
+            String username = user.getKey();
+
+            if (existingUserIds.contains(username)) {
+
+                log.warn("Coupon '{}' already assigned for user: {}", couponCode, username);
+                continue;
+            }
+
+            couponAssignedUsers.put(username, filteredUsers.get(username));
+
+            DiscountOnUsers discountOnUsers = createDiscount(
+                    username,
+                    couponCode,
+                    dto.getDescription(),
+                    dto.getDiscountType(),
+                    dto.getDiscountValue(),
+                    dto.getMinAmtOrder(),
+                    dto.getMaxDiscountAmount(),
+                    dto.getUsageLimit(),
+                    expiry
+            );
+
+            discountedUsers.add(discountOnUsers);
+
+        }
+
+        if (discountedUsers.isEmpty()) {
+            log.info("No eligible users found for coupon assignment.");
+            return;
+        }
+
+        // Save to database first
+        userDiscountRepo.saveAll(discountedUsers);
+
+        CouponAssignedEvent couponAssignedDetails = new CouponAssignedEvent(
+                couponCode,
                 dto.getDescription(),
                 dto.getDiscountType().name(),
                 dto.getDiscountValue(),
@@ -133,83 +235,13 @@ public class DiscountService {
         );
 
         //KAFKA INTEGRATION SERVICE
-        kafkaService.sendMessage(couponAssignedDetails, "coupon.assigned", "couponAssigned" );
+        kafkaService.sendMessage(couponAssignedDetails, "coupon.assigned", couponCode);
 
-        userDiscountRepo.saveAll(discountedUsers);
-
-        if(!discountedUsers.isEmpty()) {
-            log.info("Coupons assigned successfully to {} users", discountedUsers.size());
-            return true;
-        }
-        else {
-            log.info("No users are available/Coupon Already added : {} users", 0);
-            return false;
-        }
-
-    }
-
-    @Transactional
-    public void assignDiscountToEligibleUsers(AddDiscountDto addDiscountDto, double filterPrice) {
-
-        String loggedUser = currentUserService.getLoggedInUser();
-        String role = currentUserService.getLoggedInUserRole();
-
-        log.debug("Assigning coupon to eligible users. CouponCode: {}, FilterPrice: {}", addDiscountDto.getCouponCode(), filterPrice);
-
-        Map<String, String> filteredUsers = discountServiceClient.filterUsernameByOrderAmt(filterPrice, loggedUser, role).getListOfUsernames();
-
-        List<String> existingUserIds = userDiscountRepo.findUsernamesByCouponCode(addDiscountDto.getCouponCode());
-
-        List<DiscountOnUsers> discountedUsers = new ArrayList<>();
-
-        LocalDate expiry = LocalDate.now().plusMonths(addDiscountDto.getValidityInMonths());
-
-        Map<String, String> couponAssignedUsers = new HashMap<>();
-
-        for (String username : filteredUsers.keySet()) {
-
-            if (existingUserIds.contains(username)) {
-
-                log.warn("Coupon already assigned for user: {}", username);
-                continue;
-            }
-
-            couponAssignedUsers.put(username, filteredUsers.get(username));
-
-            DiscountOnUsers discountOnUsers = createDiscount(
-                    loggedUser,
-                    addDiscountDto.getCouponCode(),
-                    addDiscountDto.getDescription(),
-                    addDiscountDto.getDiscountType(),
-                    addDiscountDto.getDiscountValue(),
-                    addDiscountDto.getMinAmtOrder(),
-                    addDiscountDto.getMaxDiscountAmount(),
-                    addDiscountDto.getUsageLimit(),
-                    expiry
-            );
-
-            discountedUsers.add(discountOnUsers);
-
-        }
-
-        CouponAssignedEvent couponAssignedDetails = new CouponAssignedEvent(
-                addDiscountDto.getCouponCode(),
-                addDiscountDto.getDescription(),
-                addDiscountDto.getDiscountType().name(),
-                addDiscountDto.getDiscountValue(),
-                addDiscountDto.getMinAmtOrder(),
-                addDiscountDto.getMaxDiscountAmount(),
-                expiry,
-                addDiscountDto.getUsageLimit(),
-                couponAssignedUsers
+        log.info(
+                "Coupon '{}' assigned successfully to {} eligible users.",
+                couponCode,
+                discountedUsers.size()
         );
-
-        //KAFKA INTEGRATION SERVICE
-        kafkaService.sendMessage(couponAssignedDetails, "coupon.assigned", "couponAssigned" );
-
-        userDiscountRepo.saveAll(discountedUsers);
-
-        log.info("Coupons assigned successfully to eligible users");
     }
 
     private DiscountOnUsers createDiscount(
@@ -231,7 +263,7 @@ public class DiscountService {
                 BigDecimal.valueOf(minOrderAmount),
                 BigDecimal.valueOf(maxDiscountAmount),
                 LocalDate.now(),
-                LocalDate.now().plusMonths(6),
+                endDate,
                 usageLimit,
                 0,
                 true,
@@ -244,21 +276,39 @@ public class DiscountService {
 
         String loggedUser = currentUserService.getLoggedInUser();
 
-        log.debug("Reverting coupon: {} for user: {}", coupon, loggedUser);
+        log.debug(
+                "Reverting coupon '{}' for user '{}'.",
+                coupon,
+                loggedUser
+        );
 
-        int reactivateCoupon = userDiscountRepo.reactivateCoupon(loggedUser, coupon);
-        int decrementUsageCount = userDiscountRepo.decrementUsageCount(loggedUser, coupon);
+        int reactivatedRows = userDiscountRepo.reactivateCoupon(loggedUser, coupon);
 
-        if (reactivateCoupon == 0 || decrementUsageCount == 0) {
-            log.info("Coupon Reverted Failed for {} : {}", loggedUser, coupon);
+        int decrementedRows = userDiscountRepo.decrementUsageCount(loggedUser, coupon);
+
+        boolean reverted = reactivatedRows > 0 && decrementedRows > 0;
+
+        if (!reverted) {
+
+            log.warn(
+                    "Failed to revert coupon '{}' for user '{}'.",
+                    coupon,
+                    loggedUser
+            );
+
             return false;
-        } else {
-            log.info("Coupon Reverted for {} : {}", loggedUser, coupon);
-            return true;
         }
+
+        log.info(
+                "Coupon '{}' reverted successfully for user '{}'.",
+                coupon,
+                loggedUser
+        );
+
+        return true;
     }
 
-    public boolean validateCoupon(String coupon) {
+    public boolean couponExists(String coupon) {
 
         String loggedUser = currentUserService.getLoggedInUser();
 
@@ -295,7 +345,7 @@ public class DiscountService {
 
         log.debug("Fetching all coupons");
 
-        List<DiscountOnUsers> discountOnUsers =userDiscountRepo.findAll();
+        List<DiscountOnUsers> discountOnUsers = userDiscountRepo.findAll();
 
         log.info("Total coupons fetched: {}", discountOnUsers.size());
 
@@ -303,65 +353,93 @@ public class DiscountService {
     }
 
 
-    @Transactional(propagation = Propagation.REQUIRED)
+    @Transactional
     public ApplyCouponResponse applyDiscountByUsers(String couponCode, double purchasePrice) {
 
         String loggedUser = currentUserService.getLoggedInUser();
+        LocalDate today = LocalDate.now();
 
-        log.debug("Applying coupon. User: {}, CouponCode: {}, PurchasePrice: {}", loggedUser, couponCode, purchasePrice);
+        log.debug(
+                "Applying coupon '{}' for user '{}' with purchase price {}.",
+                couponCode,
+                loggedUser,
+                purchasePrice
+        );
 
-        List<DiscountOnUsers> discountOnUser = userDiscountRepo.findByUsername(loggedUser);
-
-        Optional<DiscountOnUsers> userDiscount = discountOnUser.stream()
-                .filter((discountOnUsers -> discountOnUsers.getCouponCode().equals(couponCode) && discountOnUsers.getActive()))
-                .findFirst();
-
-        ApplyCouponResponse applyCouponResponse = new ApplyCouponResponse();
+        Optional<DiscountOnUsers> userDiscount =
+                userDiscountRepo.findByUsernameAndCouponCodeAndActiveTrue(
+                        loggedUser,
+                        couponCode
+                );
 
         if (userDiscount.isEmpty()) {
 
-            log.warn("Coupon not available for user: {}", loggedUser);
+            log.warn(
+                    "Coupon '{}' not found for user '{}'.",
+                    couponCode,
+                    loggedUser
+            );
 
             return failureResponse(couponCode, purchasePrice);
         }
 
         DiscountOnUsers discount = userDiscount.get();
 
-        boolean validCoupon = (discount.getActive()
-                && (!discount.getEndDate().isBefore(LocalDate.now()))
-                && (purchasePrice >= discount.getMinimumOrderAmount().doubleValue())
-                && (discount.getUsedCount() < discount.getUsageLimit())
-        );
+        boolean validCoupon =
+                !discount.getEndDate().isBefore(today)
+                        && purchasePrice >= discount.getMinimumOrderAmount().doubleValue()
+                        && discount.getUsedCount() < discount.getUsageLimit();
 
         if (!validCoupon) {
 
-            log.warn("Coupon validation failed for user: {}", loggedUser);
+            log.warn(
+                    "Coupon '{}' is not valid for user '{}'.",
+                    couponCode,
+                    loggedUser
+            );
 
             return failureResponse(couponCode, purchasePrice);
         }
 
-        DiscountType discountType = discount.getDiscountType();
+        double calculatedDiscount =
+                discount.getDiscountType() == DiscountType.FLAT
+                        ? discount.getDiscountValue().doubleValue()
+                        : purchasePrice * discount.getDiscountValue().doubleValue() / 100;
 
-        double discountValue = discountType.equals(DiscountType.FLAT) ? discount.getDiscountValue().doubleValue() : (purchasePrice * discount.getDiscountValue().doubleValue()) / 100;
+        double appliedDiscount = Math.min(
+                calculatedDiscount,
+                discount.getMaximumDiscountAmount().doubleValue()
+        );
 
-        double finalPriceAfterDiscounts = (discount.getMaximumDiscountAmount().doubleValue() > discountValue) ? purchasePrice - discountValue : purchasePrice - discount.getMaximumDiscountAmount().doubleValue();
+        double finalPrice = Math.max(0, purchasePrice - appliedDiscount);
 
-        discount.setUsedCount(discount.getUsedCount() + 1);
+        int usedCount = discount.getUsedCount() + 1;
+        discount.setUsedCount(usedCount);
 
-        if (discount.getUsedCount() >= discount.getUsageLimit()) {
+        if (usedCount >= discount.getUsageLimit()) {
+
             discount.setActive(false);
 
-            log.info("Coupon deactivated after reaching usage limit. CouponCode: {}", couponCode);
+            log.info(
+                    "Coupon '{}' has reached its usage limit and is now inactive.",
+                    couponCode
+            );
         }
 
-        applyCouponResponse.setApplied(true);
-        applyCouponResponse.setCouponName(couponCode);
-        applyCouponResponse.setMessage(discount.getCouponCode() + " code is applied");
-        applyCouponResponse.setFinalPrice(finalPriceAfterDiscounts);
+        ApplyCouponResponse response = new ApplyCouponResponse();
+        response.setApplied(true);
+        response.setCouponName(couponCode);
+        response.setMessage(couponCode + " code applied successfully.");
+        response.setFinalPrice(finalPrice);
 
-        log.info("Coupon applied successfully. User: {}, CouponCode: {}, FinalPrice: {}", loggedUser, couponCode, finalPriceAfterDiscounts);
+        log.info(
+                "Coupon '{}' applied successfully for user '{}'. Final price: {}",
+                couponCode,
+                loggedUser,
+                finalPrice
+        );
 
-        return applyCouponResponse;
+        return response;
     }
 
     private ApplyCouponResponse failureResponse(String couponCode, double purchasePrice) {
@@ -405,27 +483,18 @@ public class DiscountService {
 
     @Transactional
     public ApplyCouponResponse checkCouponsAndRedeem(String coupon, double totalPricePerOrder) {
-        log.debug("Validating coupon: {}", coupon);
 
-
-        if (!validateCoupon(coupon)) {
-
-            log.info("Coupon Code Is Not Available");
-
-            ApplyCouponResponse couponResponse = new ApplyCouponResponse();
-            couponResponse.setApplied(false);
-            couponResponse.setMessage("No Coupon is applied");
-            couponResponse.setFinalPrice(totalPricePerOrder);
-            return couponResponse;
-        }
+        log.debug("Checking coupon '{}'.", coupon);
 
         ApplyCouponResponse applyCouponResponse = applyDiscountByUsers(coupon, totalPricePerOrder);
 
         if (!applyCouponResponse.isApplied()) {
 
-            log.warn("Coupon application failed: {}", applyCouponResponse.getMessage());
-
-            log.info(applyCouponResponse.getMessage());
+            log.warn(
+                    "Coupon '{}' could not be applied. Reason: {}",
+                    coupon,
+                    applyCouponResponse.getMessage()
+            );
         }
 
         return applyCouponResponse;

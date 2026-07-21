@@ -1,7 +1,8 @@
 package org.webapp.ecommerce.util;
 
 import io.jsonwebtoken.Claims;
-import org.springframework.beans.factory.annotation.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -12,14 +13,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.rmi.MarshalledObject;
 import java.util.List;
 
 @Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
 
     private final TokenValidator tokenValidator;
 
@@ -41,8 +40,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         String path = exchange.getRequest().getURI().getPath();
 
         // Skip auth for public paths
-        if (PUBLIC_PATHS.stream()
-                .anyMatch(path::startsWith)) {
+        if (PUBLIC_PATHS.stream().anyMatch(path::startsWith)) {
+            log.debug("Skipping auth for public path: {}", path);
             return chain.filter(exchange);
         }
 
@@ -52,8 +51,8 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                 .getFirst(HttpHeaders.AUTHORIZATION);
 
         // Check header exists and starts with "Bearer "
-        if (authHeader == null
-                || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Rejected request: missing or malformed Authorization header. path={}", path);
             return unauthorizedResponse(exchange);
         }
 
@@ -63,15 +62,16 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
         try {
             // Validate token
             Claims claims = tokenValidator.validateAndExtract(token);
+            String userId = claims.getSubject();
+            String role = claims.get("role", String.class);
 
-            System.out.println("Claims : " + claims);
+            log.debug("Request authenticated. userId={}, role={}, path={}", userId, role, path);
 
             // Add user info to header for downstream services
             ServerHttpRequest modifiedRequest =
                     exchange.getRequest().mutate()
-                            .header("X-User-Id", claims.getSubject())
-                            .header("X-User-Role", claims.get("role", String.class))
-                            .header("X-Token", claims.get("token", String.class))
+                            .header("X-User-Id", userId)
+                            .header("X-User-Role", role)
                             .build();
 
             return chain.filter(
@@ -80,13 +80,13 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                             .build());
 
         } catch (Exception e) {
+            log.warn("Request rejected: token validation failed. path={}, reason={}", path, e.getMessage());
             return unauthorizedResponse(exchange);
         }
     }
 
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange) {
-        exchange.getResponse()
-                .setStatusCode(HttpStatus.UNAUTHORIZED);
+        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
     }
 

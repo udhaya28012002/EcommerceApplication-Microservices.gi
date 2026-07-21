@@ -1,12 +1,34 @@
 services:
 
-  frontend:
+  #frontend:
+    #image: nginx:alpine
+    #container_name: frontend
+  #ports:
+  #- "3000:80"
+  #volumes:
+  #- ./frontend:/usr/share/nginx/html:ro
+  #depends_on:
+  #- api-gateway
+  #restart: unless-stopped
+
+  frontend-customer:
     image: nginx:alpine
-    container_name: frontend
+    container_name: frontend-customer
     ports:
-      - "3000:80"
+      - "3001:80"
     volumes:
-      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend-app:/usr/share/nginx/html:ro
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+  frontend-admin:
+    image: nginx:alpine
+    container_name: frontend-admin
+    ports:
+      - "3002:80"
+    volumes:
+       - ./frontend-app:/usr/share/nginx/html:ro
     depends_on:
       - api-gateway
     restart: unless-stopped

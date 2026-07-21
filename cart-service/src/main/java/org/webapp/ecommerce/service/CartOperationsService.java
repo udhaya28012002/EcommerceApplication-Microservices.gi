@@ -56,7 +56,7 @@ public class CartOperationsService {
             cart = cartRepository.save(cart);
         }
 
-        if(!cart.isActive()){
+        if (!cart.isActive()) {
             logger.info("Cart is not active...");
             throw new InvalidCartException("Cart is not active for this user : " + cart.getUsername());
         }
@@ -117,7 +117,7 @@ public class CartOperationsService {
             throw new CartEmptyException("No products available in cart");
         }
 
-        if(!cart.isActive()){
+        if (!cart.isActive()) {
             logger.info("Cart is not active...");
             throw new InvalidCartException("Cart is not active for this user : " + cart.getUsername());
         }
@@ -160,7 +160,7 @@ public class CartOperationsService {
             throw new CartEmptyException("No products available in cart");
         }
 
-        if(!cart.isActive()){
+        if (!cart.isActive()) {
             logger.info("Cart is not active...");
             throw new InvalidCartException("Cart is not active for this user : " + cart.getUsername());
         }
@@ -217,7 +217,7 @@ public class CartOperationsService {
 
         Cart cart = cartRepository.findByUsername(loggedUser);
 
-        if(!cart.isActive()){
+        if (!cart.isActive()) {
             logger.info("Cart is not active...");
             throw new InvalidCartException("Cart is not active for this user : " + cart.getUsername());
         }
@@ -234,7 +234,7 @@ public class CartOperationsService {
 
         logger.debug("Fetching cart details for user: {}", loggedUser);
 
-       Cart cart = cartRepository.findByUsername(loggedUser);
+        Cart cart = cartRepository.findByUsername(loggedUser);
 
         if (cart == null || cart.getCartItemsList().isEmpty()) {
 
@@ -243,7 +243,7 @@ public class CartOperationsService {
             throw new CartEmptyException("No products available in cart");
         }
 
-        if(!cart.isActive()){
+        if (!cart.isActive()) {
             logger.info("Cart is not active...");
             throw new InvalidCartException("Cart is not active for this user : " + cart.getUsername());
         }
@@ -253,14 +253,21 @@ public class CartOperationsService {
         return buildResponseDto(cart.getCartItemsList(), loggedUser, role);
     }
 
-    public InitCartResponse initUserCart(String loggedUser) {
+    public InitCartResponse getOrCreateCart(String loggedUser) {
 
-        logger.debug("Creating new cart.", loggedUser);
+        Cart cart = cartRepository.findByUsername(loggedUser);
 
-        Cart cart = new Cart();
-        cart.setUsername(loggedUser);
-        cart.setActive(true);
-        cart = cartRepository.save(cart);
+        if (cart == null) {
+            logger.debug("Creating new cart for user: {}", loggedUser);
+
+            cart = new Cart();
+            cart.setUsername(loggedUser);
+            cart.setActive(true);
+
+            cart = cartRepository.save(cart);
+        } else {
+            logger.debug("Cart already exists for user: {}", loggedUser);
+        }
 
         return new InitCartResponse(cart.getCartId());
     }
@@ -316,7 +323,7 @@ public class CartOperationsService {
             }
         }
 
-        double computeFinalPrice = calculateOfferPrice(10, computeTotalPrice) + 100;
+        double computeFinalPrice = calculateOfferPrice(0, computeTotalPrice) + 100;
 
         cartResponseDto.setCartItemsCategoryResponseDtoList(cartCategoryResponseDtoList);
         cartResponseDto.setTotalPrice(computeTotalPrice);
@@ -358,7 +365,7 @@ public class CartOperationsService {
     }
 
     @Transactional
-    public void deactivateCart(String username){
+    public void deactivateCart(String username) {
         Cart cart = cartRepository.findByUsername(username);
 
         if (cart == null || cart.getCartItemsList().isEmpty()) {

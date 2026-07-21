@@ -54,7 +54,8 @@ public class APITokenFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
-        log.info("API Token : " + token);
+        log.debug("API token present for uri={}, tokenLength={}", requestUri, token == null ? 0 : token.length());
+
 
         if (token == null) {
 

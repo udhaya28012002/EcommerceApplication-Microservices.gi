@@ -55,7 +55,7 @@ public class ServiceSecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
+                        .anyRequest().hasRole("SERVICE")
                 )
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())

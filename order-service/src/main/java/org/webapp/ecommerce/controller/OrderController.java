@@ -12,6 +12,7 @@ import org.webapp.ecommerce.dto.request.PlaceOrderRequest;
 import org.webapp.ecommerce.dto.response.PaymentResponse;
 import org.webapp.ecommerce.service.OrderRetryService;
 import org.webapp.ecommerce.service.OrderService;
+import org.webapp.ecommerce.service.OrderStatusService;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -19,12 +20,14 @@ public class OrderController {
 
     private final OrderService orderService;
     private final OrderRetryService orderRetryService;
+    private final OrderStatusService orderStatusService;
 
     private static final Logger log = LoggerFactory.getLogger(OrderController.class);
 
-    public OrderController(OrderService orderService, OrderRetryService orderRetryService) {
+    public OrderController(OrderService orderService, OrderRetryService orderRetryService, OrderStatusService orderStatusService) {
         this.orderService = orderService;
         this.orderRetryService = orderRetryService;
+        this.orderStatusService = orderStatusService;
     }
 
     @PostMapping("/placeOrder")
@@ -37,6 +40,7 @@ public class OrderController {
     }
 
     @PatchMapping("/internal/confirmed")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> updateOrderUponPaymentConfirmed(@RequestBody PaymentResponse paymentResponse){
 
         log.info("Upon Payment confirmed, updating order status and updating Inventory for OrderNumber: {}", paymentResponse.getOrderId());
@@ -91,7 +95,7 @@ public class OrderController {
 
         log.info("Updating order status to PENDING. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markOrderAsPending(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markOrderAsPending(orderNumber));
     }
 
     @PatchMapping("/updateOrder/confirmed/{orderNumber}")
@@ -100,7 +104,7 @@ public class OrderController {
 
         log.info("Updating order status to CONFIRMED. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markOrderAsConfirmed(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markOrderAsConfirmed(orderNumber));
     }
 
     @PatchMapping("/updateOrder/processing/{orderNumber}")
@@ -109,7 +113,7 @@ public class OrderController {
 
         log.info("Updating order status to PROCESSING. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markOrderAsProcessing(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markOrderAsProcessing(orderNumber));
     }
 
     @PatchMapping("/updateOrder/shipped/{orderNumber}")
@@ -118,7 +122,7 @@ public class OrderController {
 
         log.info("Updating order status to SHIPPED. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markAsShipped(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markAsShipped(orderNumber));
     }
 
     @PatchMapping("/updateOrder/outForDelivery/{orderNumber}")
@@ -127,7 +131,7 @@ public class OrderController {
 
         log.info("Updating order status to OUT_FOR_DELIVERY. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markOrderAsOutForDelivery(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markOrderAsOutForDelivery(orderNumber));
     }
 
     @PatchMapping("/updateOrder/delivered/{orderNumber}")
@@ -136,11 +140,11 @@ public class OrderController {
 
         log.info("Updating order status to DELIVERED. OrderNumber: {}", orderNumber);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.markOrderAsDelivered(orderNumber));
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderStatusService.markOrderAsDelivered(orderNumber));
     }
 
     @PatchMapping("/internal/filterUsernameByOrderAmt/{filterAmount}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getUsernamesByFilterAmt(@PathVariable long filterAmount){
         return ResponseEntity.ok(orderService.filterUsernamesByOrderAmt(filterAmount));
     }

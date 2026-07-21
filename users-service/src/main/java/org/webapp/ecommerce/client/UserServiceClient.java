@@ -36,7 +36,7 @@ public class UserServiceClient {
 
     public void assignWelcomeCoupon(String jwtToken, LocalDateTime registrationTime){
 
-        logger.info("JWTToken : " + jwtToken);
+        logger.debug("Forwarding service token to Discount Service; tokenPresent={}", jwtToken != null);
 
         logger.debug("Calling Discount Service");
 
@@ -66,11 +66,11 @@ public class UserServiceClient {
         }
     }
 
-    public InitCartResponse initCart(String jwtToken){
+    public InitCartResponse getOrCreateCart(String jwtToken){
 
         logger.debug("Calling Cart Service");
 
-        String url = cartServiceUrl + "/internal/initCart";
+        String url = cartServiceUrl + "/internal/getOrCreateCart";
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtToken); // forward the same JWT

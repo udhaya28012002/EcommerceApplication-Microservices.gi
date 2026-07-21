@@ -4,6 +4,7 @@ import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.webapp.ecommerce.dto.PaymentRequest;
 import org.webapp.ecommerce.dto.PaymentResponse;
@@ -35,11 +36,11 @@ public class PaymentController {
     // Add temporarily to PaymentController for standalone testing only
     // DELETE this before integrating with Order Service
 
-    @PostMapping("/internal/dev/token")
+   /* @PostMapping("/internal/dev/token")
     public ResponseEntity<String> generateTestToken(
             @RequestParam String username,
             @RequestParam String role) {
-        String token = paymentServiceTokenProvider.generateServiceTokenTemp(username, role);
+        String token = paymentServiceTokenProvider.generateServiceTokenTemps(username, role);
         return ResponseEntity.ok(token);
     }
 
@@ -49,12 +50,13 @@ public class PaymentController {
             @RequestParam String role) {
         String token = paymentsAPITokenProvider.generateServiceTokenTemp(username, role);
         return ResponseEntity.ok(token);
-    }
+    }*/
 
     // ── Internal endpoints (called by Order Service only) ────────────────────
     // Protected by ServiceTokenFilter via @Order(1) chain
 
     @PostMapping("/internal/createPaymentIntent")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<PaymentResponse> createPayment(
             @Valid @RequestBody PaymentRequest request) throws StripeException {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -62,18 +64,21 @@ public class PaymentController {
     }
 
     @PostMapping("/internal/{paymentId}/confirm")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<PaymentResponse> confirmPayment(
             @PathVariable UUID paymentId) {
         return ResponseEntity.ok(paymentService.confirmPayment(paymentId));
     }
 
     @PostMapping("/internal/{paymentId}/cancel")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<PaymentResponse> cancelPayment(
             @PathVariable UUID paymentId) throws StripeException {
         return ResponseEntity.ok(paymentService.cancelPayment(paymentId));
     }
 
     @PostMapping("/internal/{paymentIntentId}/refund")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<PaymentResponse> initiateRefund(
             @PathVariable String paymentIntentId) throws StripeException {
         return ResponseEntity.ok(paymentService.initiateRefund(paymentIntentId));

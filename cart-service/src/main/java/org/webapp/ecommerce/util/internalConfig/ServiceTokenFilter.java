@@ -18,6 +18,7 @@ import org.webapp.ecommerce.exception.ServiceAuthException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServiceTokenFilter extends OncePerRequestFilter {
 
@@ -54,7 +55,7 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
-        log.info("SERVICE Token : " + token);
+        log.debug("Service token present for uri={}, tokenLength={}", requestUri, token == null ? 0 : token.length());
 
         if (token == null) {
 
@@ -98,20 +99,33 @@ public class ServiceTokenFilter extends OncePerRequestFilter {
                 return;
             }
 
+            List<SimpleGrantedAuthority> authorities;
+            if (claims.getRoles() != null && !claims.getRoles().isEmpty()) {
+                authorities = claims.getRoles().stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+            } else if (claims.getRole() != null) {
+                authorities = List.of(new SimpleGrantedAuthority(claims.getRole()));
+            } else {
+                authorities = List.of();
+            }
+
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(
                             claims.getUsername(),
                             null,
-                            List.of(new SimpleGrantedAuthority(claims.getRole()))
+                            authorities
                     );
 
             SecurityContextHolder.getContext().setAuthentication(auth);
+
+            String rolesStr = (claims.getRoles() != null && !claims.getRoles().isEmpty()) ? String.join(",", claims.getRoles()) : (claims.getRole() == null ? "" : claims.getRole());
 
             log.debug(
                     "Security context established. callerService={}, user={}, role={}",
                     claims.getSvc(),
                     claims.getUsername(),
-                    claims.getRole()
+                    rolesStr
             );
 
             filterChain.doFilter(request, response);

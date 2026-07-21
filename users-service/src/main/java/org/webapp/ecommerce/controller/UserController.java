@@ -75,7 +75,7 @@ public class UserController {
     }*/
 
     @GetMapping("/internal/getAllUsernames")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SERVICE')")
     public ResponseEntity<?> getAllUsernames(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
         log.info("Fetching all Users. Page: {}, Size: {}",page,size);
 
@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @GetMapping("/internal/getUserDetails/{username}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getUserDetails(@PathVariable String username) {
         log.info("Fetching User Details");
 

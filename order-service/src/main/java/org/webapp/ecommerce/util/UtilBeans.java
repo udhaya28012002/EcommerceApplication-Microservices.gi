@@ -30,8 +30,8 @@ public class UtilBeans {
     }
 
     @Bean("serviceTokenFilter")
-    public ServiceTokenFilter serviceTokenFilter(OrderServiceTokenProvider cartServiceTokenProvider, OrderRepository orderRepository){
-        return new ServiceTokenFilter(cartServiceTokenProvider, orderRepository);
+    public ServiceTokenFilter serviceTokenFilter(OrderServiceTokenProvider cartServiceTokenProvider){
+        return new ServiceTokenFilter(cartServiceTokenProvider);
     }
 
     @Bean

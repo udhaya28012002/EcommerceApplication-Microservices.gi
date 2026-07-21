@@ -41,6 +41,9 @@ public class UsersServiceTokenProvider {
                 .claim("username",          username)
                 .claim("role",              role)
 
+                // Provide explicit roles claim for service tokens
+                .claim("roles",             List.of("ROLE_SERVICE"))
+
                 .claim("type",              "SERVICE")
                 .claim("svc",               currentServiceName)
                 .claim("allowed_services",  initAllowedServicesProperties.getAllowedServices())
@@ -52,7 +55,7 @@ public class UsersServiceTokenProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
 
-        log.info("Generated Token : " + token);
+        log.info("Generated service token for user={}", username);
 
         return token;
     }
@@ -132,11 +135,18 @@ public class UsersServiceTokenProvider {
         }
 
         // STEP 7: Return all validated claims
-        return new ServiceTokenClaims(
-                svc,
-                allowedServices,
-                username,
-                role
+        ServiceTokenClaims st = new ServiceTokenClaims(
+            svc,
+            allowedServices,
+            username,
+            role
         );
+
+        List<String> roles = claims.get("roles", List.class);
+        if (roles != null && !roles.isEmpty()) {
+            st.setRoles(roles);
+        }
+
+        return st;
     }
 }

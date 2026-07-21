@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.webapp.ecommerce.repository.InventoryRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,10 +29,22 @@ public class InventoryService {
         this.inventoryRepository = inventoryRepository;
     }
 
-    public boolean updateInventoryQuantityForOrders(Map<Long, Integer> productDetailsToBeUpdated){
+    @Transactional
+    public boolean updateInventoryQuantityForOrders(Map<Long, Integer> productDetailsToBeUpdated) {
+        List<Long> failedProducts = new ArrayList<>();
 
-        productDetailsToBeUpdated.forEach((key, value) -> updateInventoryQuantity(key, value, false));
+        for (Map.Entry<Long, Integer> entry : productDetailsToBeUpdated.entrySet()) {
+            boolean success = updateInventoryQuantity(entry.getKey(), entry.getValue(), false);
+            if (!success) {
+                failedProducts.add(entry.getKey());
+            }
+        }
 
+        if (!failedProducts.isEmpty()) {
+            throw new InvalidInventoryException(
+                    "Insufficient stock for productIds: " + failedProducts
+            );
+        }
         return true;
     }
 
@@ -59,7 +72,6 @@ public class InventoryService {
 
         if (positive) {
 
-
             newQuantity = currentQty + quantity;
 
             log.debug("Increasing inventory quantity. ProductId: {}, CurrentQty: {}, AddedQty: {}, NewQty: {}", productId, currentQty, quantity, newQuantity);
@@ -69,7 +81,7 @@ public class InventoryService {
 
                 log.warn("Insufficient inventory stock reduction attempt. ProductId: {}, CurrentQty: {}, RequestedReduction: {}", productId, currentQty, quantity);
 
-                throw new InvalidInventoryException("Not enough stock to reduce");
+                return false;
             }
             newQuantity = currentQty - quantity;
 

@@ -81,7 +81,7 @@ public class ProductController {
     }
 
     @GetMapping("/internal/getProduct/{productId}")
-    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getProductForInternal(@PathVariable long productId){
 
         log.info("Fetching product details. ProductId: {}", productId);

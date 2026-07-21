@@ -62,6 +62,7 @@ known-services:
     - discount-service
     - products-service
     - payment-service
+    - users-service
 
 payment:
   currencyCode: INR

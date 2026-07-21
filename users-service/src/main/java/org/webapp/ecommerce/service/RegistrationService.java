@@ -40,15 +40,15 @@ public class RegistrationService {
 
         String serviceToken = usersServiceTokenProvider.generateServiceToken(dto.getUserName(), "ROLE_CUSTOMER");
 
-        long cartId = userServiceClient.initCart(serviceToken).getCartId();
 
+        long cartId = userServiceClient.getOrCreateCart(serviceToken).getCartId();
         Users user = userService.createUser(dto, isAdmin, cartId);
 
         log.info("User created successfully: {}", user.getUserName());
 
         log.info("Welcome coupon assigned to user: {}", user.getUserName());
 
-        UserResDto userResDto = new UserResDto(user.getName(), user.getUserName(), user.getEmailId(), user.getEmailId(), user.getAddress(), user.getCreatedAt());
+        UserResDto userResDto = new UserResDto(user.getName(), user.getUserName(), user.getEmailId(), user.getContactNo(), user.getAddress(), user.getCreatedAt());
 
         return userResDto;
     }

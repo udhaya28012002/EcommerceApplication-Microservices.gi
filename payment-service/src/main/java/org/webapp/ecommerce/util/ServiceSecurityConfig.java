@@ -67,7 +67,7 @@ public class ServiceSecurityConfig {
                 )
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests(auth -> auth.anyRequest().hasRole("SERVICE"))
                 .formLogin(f -> f.disable())
                 .httpBasic(b -> b.disable())
                 .exceptionHandling(ex -> ex

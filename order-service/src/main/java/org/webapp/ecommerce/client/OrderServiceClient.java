@@ -8,12 +8,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.webapp.ecommerce.dto.request.PaymentRequest;
 import org.webapp.ecommerce.dto.response.*;
 import org.webapp.ecommerce.entity.PaymentMethodType;
+import org.webapp.ecommerce.exception.InventoryUpdateFailedException;
 import org.webapp.ecommerce.util.internalConfig.OrderServiceTokenProvider;
 
 import java.util.Map;
@@ -186,13 +188,13 @@ public class OrderServiceClient {
         }
     }
 
-    public UserDetailsDtoResponse getUserDetails(String username, String role){
+    public UserDetailsDtoResponse getUserDetails(String username){
 
         String url = usersServiceUrl + "/internal/getUserDetails/" + username;
 
         HttpHeaders headers = new HttpHeaders();
         //headers.setBearerAuth(jwtToken.substring(7)); // forward the same JWT
-        headers.setBearerAuth(tokenProvider.generateServiceToken(username, role));
+        headers.setBearerAuth(tokenProvider.generateServiceToken(username, "ROLE_SERVICE"));
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
@@ -243,9 +245,20 @@ public class OrderServiceClient {
                     Void.class
             );
 
+        } catch (HttpClientErrorException e) {
+            // 4xx — a genuine business failure (e.g. insufficient stock)
+            logger.warn("Inventory update rejected for username: {}. Status: {}, Body: {}",
+                    username, e.getStatusCode(), e.getResponseBodyAsString());
+            throw new InventoryUpdateFailedException(
+                    "Inventory update failed: " + e.getResponseBodyAsString()
+            );
+
         } catch (Exception e) {
-            logger.error("Failed to fetch Inventory Service for username: {}. Error: ", username, e);
-            throw new RuntimeException("Inventory Service unavailable. Please try again later.");
+            // Network failure, timeout, 5xx, etc. — treat as service unavailable
+            logger.error("Failed to reach Inventory Service for username: {}. Error: ", username, e);
+            throw new InventoryUpdateFailedException(
+                    "Inventory Service unavailable. Please try again later."
+            );
         }
     }
 

@@ -6,6 +6,7 @@ public class ServiceTokenClaims {
 
     private String       svc;
     private List<String> allowedServices;
+    private List<String> roles;
     private String       username;
     private String       role;
 
@@ -13,6 +14,7 @@ public class ServiceTokenClaims {
         this.svc = svc;
         this.username = username;
         this.role = role;
+        this.roles = List.of(role);
     }
 
     public ServiceTokenClaims(String svc, List<String> allowedServices, String username, String role) {
@@ -20,6 +22,15 @@ public class ServiceTokenClaims {
         this.allowedServices = allowedServices;
         this.username = username;
         this.role = role;
+        this.roles = List.of(role);
+    }
+
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
     }
 
     public String getSvc() {

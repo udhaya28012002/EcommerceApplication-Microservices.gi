@@ -36,7 +36,7 @@ public class CartController {
     }
 
     @GetMapping("/internal/getCart")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getCartDetailsForInternal() {
 
         log.info("Fetching cart details");
@@ -48,13 +48,13 @@ public class CartController {
         return ResponseEntity.ok(cartDetails);
     }
 
-    @PostMapping("/internal/initCart")
-    @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<?> initCart() {
+    @PostMapping("/internal/getOrCreateCart")
+    @PreAuthorize("hasRole('SERVICE')")
+    public ResponseEntity<?> getOrCreateCart() {
 
         log.info("Init cart for new users");
 
-        InitCartResponse cartDetails = cartService.initUserCart();
+        InitCartResponse cartDetails = cartService.getOrCreateCart();
 
         log.info("Cart initiated successfully");
 
@@ -105,7 +105,7 @@ public class CartController {
     }
 
     @PatchMapping("/internal/deactivate")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> deactivate() {
 
         log.info("Deactivate cart request received");

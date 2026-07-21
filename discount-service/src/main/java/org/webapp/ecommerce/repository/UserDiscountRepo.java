@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.webapp.ecommerce.entity.DiscountOnUsers;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserDiscountRepo extends JpaRepository<DiscountOnUsers, Long> {
@@ -43,4 +44,6 @@ public interface UserDiscountRepo extends JpaRepository<DiscountOnUsers, Long> {
     List<String> findUsernamesByCouponCode(String couponCode);
 
     List<DiscountOnUsers> findByUsername(String username);
+
+    Optional<DiscountOnUsers> findByUsernameAndCouponCodeAndActiveTrue(String username, String couponCode);
 }

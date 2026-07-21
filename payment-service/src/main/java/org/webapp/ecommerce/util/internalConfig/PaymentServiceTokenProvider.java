@@ -34,22 +34,19 @@ public class PaymentServiceTokenProvider {
         this.initAllowedServicesProperties = initAllowedServicesProperties;
     }
 
-    public String generateServiceTokenTemp(String username, String role) {
+    public String generateServiceTokenTemps(String username, String role) {
         String token = Jwts.builder()
-                .subject("order-service")
+                .subject(currentServiceName)
 
                 .claim("username", username)
                 .claim("role", role)
 
+                // Provide explicit roles claim for service tokens
+                .claim("roles",             List.of("ROLE_SERVICE"))
+
                 .claim("type", "SERVICE")
                 .claim("svc", "order-service")
-                .claim("allowed_services", List.of(
-                        "payment-service",
-                        "inventory-service",
-                        "cart-service",
-                        "discount-service",
-                        "products-service"
-                ))
+                .claim("allowed_services", initAllowedServicesProperties.getAllowedServices())
 
                 .audience().add("internal-api").and()
                 .issuedAt(new Date())
@@ -58,7 +55,7 @@ public class PaymentServiceTokenProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
 
-        log.info("Generated Token : " + token);
+        log.info("Generated service token for user={}", username);
 
         return token;
     }
@@ -66,6 +63,9 @@ public class PaymentServiceTokenProvider {
     public String generateServiceToken() {
         String token = Jwts.builder()
                 .subject(currentServiceName)
+
+                // Provide explicit roles claim for service tokens
+                .claim("roles",             List.of("ROLE_SERVICE"))
 
                 .claim("type", "SERVICE")
                 .claim("svc", currentServiceName)
@@ -78,7 +78,7 @@ public class PaymentServiceTokenProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
 
-        log.info("Generated Token : " + token);
+        log.info("Generated service token" );
 
         return token;
     }
@@ -158,12 +158,19 @@ public class PaymentServiceTokenProvider {
         }
 
         // STEP 7: Return all validated claims
-        return new ServiceTokenClaims(
+        ServiceTokenClaims st = new ServiceTokenClaims(
                 svc,
                 allowedServices,
                 username,
                 role
         );
+
+        List<String> roles = claims.get("roles", List.class);
+        if (roles != null && !roles.isEmpty()) {
+            st.setRoles(roles);
+        }
+
+        return st;
     }
 
     public String extractUsernameFromToken(String token) {

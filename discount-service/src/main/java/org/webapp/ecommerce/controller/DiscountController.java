@@ -38,7 +38,7 @@ public class DiscountController {
     }
 
     @PostMapping("/internal/assignWelcomeCoupon")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> assignWelcomeCoupon(@RequestParam LocalDateTime registrationTime){
 
         log.debug("Assign coupon to new users request received.");
@@ -89,7 +89,7 @@ public class DiscountController {
     }
 
     @PostMapping("/internal/checkCouponsAndRedeem")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> checkCouponsAndRedeem(@RequestParam String coupon, @RequestParam double totalPricePerOrder){
 
         log.debug("Validate coupon and apply Coupon request received.");
@@ -98,7 +98,7 @@ public class DiscountController {
     }
 
     @PatchMapping("/internal/revertCoupons/{couponCode}")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> revertCoupons(@PathVariable String couponCode){
 
         log.debug("Validate coupon and apply Coupon request received.");

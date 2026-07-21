@@ -48,7 +48,7 @@ public class DiscountAPITokenProvider {
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
 
-        log.info("Generated Token : " + token);
+        log.info("Generated API token for user={}", username);
 
         return token;
     }

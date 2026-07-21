@@ -23,7 +23,7 @@ public class InventoryController {
     }
 
     @PatchMapping("/internal/updateInventory/{productId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> updateInventoryQuantity(@PathVariable long productId, @RequestParam int quantity, @RequestParam boolean positive){
 
         log.debug("Inventory update request received. ProductId: {}, Quantity: {}, Positive: {}", productId, quantity, positive);
@@ -32,7 +32,7 @@ public class InventoryController {
     }
 
     @PatchMapping("/internal/updateInventoryForOrder")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> updateInventoryForOrder(@RequestBody Map<Long, Integer> productDetailsToBeUpdated){
 
         log.debug("Inventory update request received for orders");
@@ -41,7 +41,7 @@ public class InventoryController {
     }
 
     @GetMapping("/internal/getInventory/{productId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getInventory(@PathVariable long productId){
 
         log.debug("Inventory get request received. ProductId: {}", productId);
@@ -50,7 +50,7 @@ public class InventoryController {
     }
 
     @PatchMapping("/internal/revertInventory")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> revertInventory(@RequestParam long productId, @RequestParam int quantityToBeReverted){
 
         log.debug("Inventory revert request received. ProductId: {}", productId);
@@ -61,7 +61,7 @@ public class InventoryController {
     }
 
     @GetMapping("/internal/getAllFromInventory")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> getAllFromInventory(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
 
         log.debug("Inventory get all request received");
@@ -70,7 +70,7 @@ public class InventoryController {
     }
 
     @PostMapping("/internal/putInventory")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> pushIntoInventory(@RequestParam long productId, @RequestParam int quantity){
 
         log.debug("Inventory post request received. ProductId: {}", productId);
@@ -79,7 +79,7 @@ public class InventoryController {
     }
 
     @DeleteMapping("/internal/deleteInventory/{productId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('SERVICE')")
     public ResponseEntity<?> deleteInventory(@RequestParam long productId){
 
         log.debug("Inventory delete request received. ProductId: {}", productId);

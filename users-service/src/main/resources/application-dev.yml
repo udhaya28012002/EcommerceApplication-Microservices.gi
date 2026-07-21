@@ -55,3 +55,4 @@ known-services:
   allowed-services:
     - cart-service
     - discount-service
+    - order-service
