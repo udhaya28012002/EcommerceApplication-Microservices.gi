@@ -23,6 +23,7 @@ import org.webapp.ecommerce.kafka.KafkaService;
 import org.webapp.ecommerce.repository.OrderRepository;
 import org.webapp.ecommerce.util.CurrentUserService;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -78,7 +79,7 @@ public class OrderService {
         Orders order = new Orders();
         order.setOrderDate(today);
         order.setUsername(loggedUser);
-        order.setOrderNumber("ORD-" + today.format(formatter) + (UUID.randomUUID().toString().substring(7).replace("-", "")));
+        order.setOrderNumber(generateOrderNumber());
 
         log.info("Generated order number: {}", order.getOrderNumber());
 
@@ -139,6 +140,13 @@ public class OrderService {
         );
 
         return orderEvent;
+    }
+
+    private String generateOrderNumber() {
+        return "ORD-%s-%s".formatted(
+                LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE),
+                UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase()
+        );
     }
 
     @Transactional

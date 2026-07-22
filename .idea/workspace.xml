@@ -4,77 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e44ae30f-0d6f-4fe6-aaad-35ef94cd80f6" name="Changes" comment="feat: integrate Kafka and email service, enhance Docker setup">
+    <list default="true" id="e44ae30f-0d6f-4fe6-aaad-35ef94cd80f6" name="Changes" comment="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/util/JwtAuthFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/util/JwtAuthFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/util/TokenValidator.java" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/java/org/webapp/ecommerce/util/TokenValidator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/api-gateway/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/controller/CartController.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/controller/CartController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartOperationsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartOperationsService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartService.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/service/CartService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/apiConfig/CartAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/apiConfig/CartAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/internalConfig/CartServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/internalConfig/CartServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/cart-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/client/DiscountServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/client/DiscountServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/controller/DiscountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/controller/DiscountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/repository/UserDiscountRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/repository/UserDiscountRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/service/DiscountService.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/service/DiscountService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/apiConfig/DiscountAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/apiConfig/DiscountAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/internalConfig/DiscountServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/internalConfig/DiscountServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/discount-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/controller/InventoryController.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/controller/InventoryController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/service/InventoryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/service/InventoryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/apiConfig/InventoryAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/apiConfig/InventoryAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/internalConfig/InventoryServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/internalConfig/InventoryServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/inventory-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/client/OrderServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/client/OrderServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/UtilBeans.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/apiConfig/OrderAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/apiConfig/OrderAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/internalConfig/OrderServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/internalConfig/OrderServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/controller/PaymentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/service/PaymentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/internalConfig/PaymentServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/internalConfig/PaymentServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/payment-service/src/main/resources/application-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/controller/ProductController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/dto/ServiceTokenClaims.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/apiConfig/ProductsAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/apiConfig/ProductsAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ProductsServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ProductsServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/products-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/client/UserServiceClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/client/UserServiceClient.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/dto/response/ServiceTokenClaims.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/ServiceSecurityConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/apiConfig/APITokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/apiConfig/UserAPITokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/apiConfig/UserAPITokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/internalConfig/ServiceTokenFilter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/internalConfig/UsersServiceTokenProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/util/internalConfig/UsersServiceTokenProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/resources/application-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/resources/application-dev.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -128,29 +61,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.CartServiceApplication.executor": "Run",
-    "Application.CategoryServiceApplication.executor": "Run",
-    "Application.DiscountServiceApplication.executor": "Run",
-    "Application.InventoryServiceApplication.executor": "Run",
-    "Application.OrderServiceApplication.executor": "Run",
-    "Application.PaymentServiceApplication.executor": "Run",
-    "Application.ProductServiceApplication.executor": "Run",
-    "Application.UserServiceApplication.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Project/EcommerceApplication/payment-service/src/main/java/org/webapp/ecommerce",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "configurable.group.tools"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.CartServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.CategoryServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.DiscountServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.InventoryServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.OrderServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PaymentServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ProductServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.UserServiceApplication.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Project/EcommerceApplication/payment-service/src/main/java/org/webapp/ecommerce&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.tools&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="org.webapp.ecommerce.exception" />
@@ -272,7 +205,15 @@
       <option name="project" value="LOCAL" />
       <updated>1783531379052</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing">
+      <option name="closed" value="true" />
+      <created>1784671020011</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1784671020011</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -294,6 +235,7 @@
     <MESSAGE value="feat: add Stripe payment integration with order success and cancellation handling" />
     <MESSAGE value="Updated the Project to containerize it." />
     <MESSAGE value="feat: integrate Kafka and email service, enhance Docker setup" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: integrate Kafka and email service, enhance Docker setup" />
+    <MESSAGE value="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing" />
   </component>
 </project>

@@ -79,6 +79,10 @@ public class RegistrationService {
                 );
 
         //KAFKA INTEGRATION SERVICE
-        kafkaService.sendMessage(userRegisterEvent, "user.registered", "newUserRegistered");
+        kafkaService.sendMessage(
+                userRegisterEvent,
+                "user.registered",
+                createdUser.getUserName()
+        );
     }
 }
