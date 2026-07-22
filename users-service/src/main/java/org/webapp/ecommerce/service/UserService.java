@@ -280,7 +280,7 @@ public class UserService implements UserDetailsService {
 
     public UserDetailsResponse getAllUsernames(int page, int size){
 
-        Page<Object[]> pages = userRepo.findAllUsernamesAndEmails(PageRequest.of(page, size));
+        Page<Object[]> pages = userRepo.findAllCustomerUsernamesAndEmails(PageRequest.of(page, size));
 
         HashMap<String , String > usersMap = new HashMap<>();
 

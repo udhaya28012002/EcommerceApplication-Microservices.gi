@@ -27,4 +27,11 @@ public interface UserRepo extends JpaRepository<Users, Long> {
     """)
     Page<Object[]> findAllUsernamesAndEmails(Pageable pageable);
 
+    @Query("""
+    SELECT u.userName, u.emailId
+    FROM Users u
+    WHERE u.role = 'ROLE_CUSTOMER'
+    """)
+    Page<Object[]> findAllCustomerUsernamesAndEmails(Pageable pageable);
+
 }

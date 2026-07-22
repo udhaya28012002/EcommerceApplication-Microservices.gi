@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e44ae30f-0d6f-4fe6-aaad-35ef94cd80f6" name="Changes" comment="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing">
+    <list default="true" id="e44ae30f-0d6f-4fe6-aaad-35ef94cd80f6" name="Changes" comment="Documented the workflow">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/order-service/src/main/java/org/webapp/ecommerce/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/RegistrationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/repository/UserRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/repository/UserRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/users-service/src/main/java/org/webapp/ecommerce/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -213,7 +213,15 @@
       <option name="project" value="LOCAL" />
       <updated>1784671020011</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Documented the workflow">
+      <option name="closed" value="true" />
+      <created>1784744483837</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1784744483837</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -236,6 +244,7 @@
     <MESSAGE value="Updated the Project to containerize it." />
     <MESSAGE value="feat: integrate Kafka and email service, enhance Docker setup" />
     <MESSAGE value="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat: implement Kafka messaging for order lifecycle events and improve payment/order failure handling&#10;&#10;- Added Kafka producers and consumers for order events&#10;- Integrated notification service for order status emails&#10;- Improved payment confirmation and cancellation workflows&#10;- Added transactional handling with REQUIRES_NEW for failure updates&#10;- Enhanced service-to-service authentication flow&#10;- Updated Docker Kafka configuration&#10;- Integrated frontend for testing" />
+    <MESSAGE value="Documented the workflow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Documented the workflow" />
   </component>
 </project>
